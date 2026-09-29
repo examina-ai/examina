@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Examina — Förhör &amp; Studierum</title>
+<style>
+/* Fonts: system fallback for preview (no network) — Inter/Instrument replaced by system stack, still 100% functional */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#070709;--bg2:#0f0f11;--card:#131316;--card2:#1a1a1e;--line:#242428;--line2:#2c2c30;--ink:#f5f1e8;--muted:#9a9aa0;--dim:#6a6a70;--accent:#f2e6c9;--accent2:#e8c99a;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--r:16px}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.mono{font-family:'Fragment Mono',monospace}
+.serif{font-family:'Instrument Serif',serif}
+header{position:sticky;top:0;z-index:30;background:rgba(7,7,9,.82);backdrop-filter:blur(16px) saturate(1.2);border-bottom:1px solid var(--line)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);opacity:.35}
+.header-inner{max-width:1320px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:42px;height:42px;background:var(--accent);color:#0a0a0c;display:grid;place-items:center;font-family:'Instrument Serif',serif;font-size:24px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 4px 20px rgba(242,230,201,.25)}
+.brand h1{font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;letter-spacing:-.03em}
+.brand h1 i{font-style:italic;color:var(--accent2)}
+.brand p{font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:1px}
+.tabs{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.04);padding:4px;border-radius:999px;border:1px solid var(--line)}
+.tab-btn{border:none;background:transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s}
+.tab-btn.active{background:var(--ink);color:#0a0a0c}
+.tab-btn:hover{color:var(--ink)}
+.container{max-width:1320px;margin:0 auto;padding:26px 22px 48px;position:relative}
+.grid{display:grid;gap:18px}
+.grid-2{grid-template-columns:1.18fr .82fr}
+@media(max-width:1020px){.grid-2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative}
+.card-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(180deg,rgba(255,255,255,.015),transparent)}
+.card-head h2{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.card-head h2 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;text-transform:none;font-size:16px;color:var(--accent2)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.badge.live{background:var(--accent);color:#0a0a0c;border-color:var(--accent2);font-weight:700}
+.badge.ok{background:rgba(16,185,129,.1);color:#6ee7b7;border-color:rgba(16,185,129,.2)}
+.card-body{padding:18px}
+.label{font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.input,.textarea,.select{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;font-size:13.5px;color:var(--ink);outline:none;transition:.18s}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--line2);background:var(--card2)}
+.textarea{resize:vertical;min-height:112px;line-height:1.65}
+.hint{font-size:11px;color:var(--dim);margin-top:7px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{border:1px solid var(--line);background:var(--bg2);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer}
+.pill.active{background:var(--ink);color:#0a0a0c;border-color:var(--ink)}
+.range-wrap{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);padding:10px 12px;border-radius:12px}
+.range{flex:1;accent-color:var(--accent2)}
+.count-bubble{min-width:40px;height:28px;display:grid;place-items:center;background:var(--ink);color:#0a0a0c;border-radius:999px;font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace}
+.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.preset-btn{border:1px solid var(--line);background:var(--bg2);color:var(--muted);padding:6px 10px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer}
+.preset-btn.active{background:var(--accent);color:#0a0a0c;border-color:var(--accent2)}
+.chip{font-size:11px;padding:7px 10px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);cursor:pointer;font-weight:500;color:#b8b8be}
+.chip:hover{border-color:var(--line2);color:var(--ink)}
+.btn{border:none;border-radius:12px;padding:12px 16px;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.18s}
+.btn-primary{background:var(--ink);color:#0a0a0c;width:100%;border:1px solid var(--ink)}
+.btn-primary:hover{background:#fff;transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:rgba(255,255,255,.07)}
+.btn-sm{padding:8px 12px;font-size:12px;border-radius:999px}
+.meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.max-grade{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:5px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--muted)}
+.max-grade.A{background:rgba(244,63,94,.1);color:#fda4af;border-color:rgba(244,63,94,.2)}
+.max-grade.B{background:rgba(16,185,129,.1);color:#6ee7b7;border-color:rgba(16,185,129,.2)}
+.max-grade.C{background:rgba(99,102,241,.12);color:#a5b4fc;border-color:rgba(99,102,241,.22)}
+.question{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--bg2);margin-bottom:12px}
+.q-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.q-title{font-weight:600;font-size:13.5px}
+.q-type{font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.options{display:grid;gap:8px;margin-top:12px}
+.opt{border:1px solid var(--line);border-radius:12px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start;background:var(--card);cursor:pointer}
+.opt:hover{border-color:var(--line2);background:var(--card2)}
+.opt:has(input:checked){border-color:var(--accent2);background:rgba(242,230,201,.06)}
+.opt input{margin-top:3px;accent-color:var(--accent2)}
+.long-textarea{min-height:122px;background:var(--card)}
+.progress{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:.4s}
+.score-box{width:102px;height:102px;border-radius:16px;display:grid;place-items:center;background:var(--ink);color:#0a0a0c;font-family:'Instrument Serif',serif;font-size:46px;transform:rotate(-1.5deg)}
+.grade-A{color:#f43f5e} .grade-B{color:#10b981} .grade-C{color:#818cf8} .grade-D{color:#f59e0b} .grade-E{color:var(--muted)}
+.feedback-item{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--bg2)}
+.feedback-item.good{border-left:3px solid var(--ok)} .feedback-item.mid{border-left:3px solid var(--warn)} .feedback-item.low{border-left:3px solid var(--bad)}
+.kpi{display:flex;gap:12px;align-items:center;padding:13px;background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.kpi i{width:36px;height:36px;border-radius:10px;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center}
+.flash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.flash-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.flash-grid{grid-template-columns:1fr}}
+.flash{height:156px;perspective:1000px;cursor:pointer}
+.flash-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flash.flipped .flash-inner{transform:rotateY(180deg)}
+.flash-front,.flash-back{position:absolute;inset:0;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden}
+.flash-back{transform:rotateY(180deg);background:var(--card2)}
+.flash-q{font-weight:600;font-size:12.5px} .flash-a{font-size:12.5px;color:#c8c8ce}
+.quiz-opt{border:1px solid var(--line);padding:10px 12px;border-radius:12px;cursor:pointer;background:var(--card);font-size:12.5px;font-weight:500;color:var(--ink);text-align:left;width:100%}
+.quiz-opt.correct{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#6ee7b7}
+.quiz-opt.wrong{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5}
+.summary-list{list-style:none;display:grid;gap:9px}
+.summary-list li{padding:12px 13px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;display:flex;gap:12px}
+.summary-list li span.num{width:26px;height:26px;border-radius:8px;background:var(--ink);color:#0a0a0c;display:grid;place-items:center;font-weight:800;font-size:11px;flex:none;font-family:'JetBrains Mono',monospace}
+.drop{border:1px dashed var(--line2);background:var(--bg2);border-radius:14px;padding:18px;text-align:center;cursor:pointer}
+.drop.drag{border-color:var(--accent2);background:rgba(242,230,201,.06)}
+.chat{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);display:flex;flex-direction:column;height:420px}
+.chat-log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:11px;background:var(--bg)}
+.bubble{max-width:82%;padding:12px 14px;border-radius:16px;font-size:12.5px;line-height:1.6}
+.bubble.user{align-self:flex-end;background:var(--ink);color:#0a0a0c;border-bottom-right-radius:5px}
+.bubble.bot{align-self:flex-start;background:var(--card2);border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:5px}
+.chat-input{display:flex;gap:8px;padding:10px;background:var(--card);border-top:1px solid var(--line)}
+.chat-input input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:11px 14px;outline:none;font-size:12.5px;color:var(--ink)}
+.divider{height:1px;background:var(--line);margin:14px 0}
+.notice{padding:10px 12px;border-radius:12px;font-size:11px;font-weight:500;display:flex;gap:8px;align-items:center;line-height:1.4}
+.notice.info{background:rgba(99,102,241,.08);color:#a5b4fc;border:1px solid rgba(99,102,241,.15)}
+.notice.success{background:rgba(16,185,129,.08);color:#6ee7b7;border:1px solid rgba(16,185,129,.15)}
+.notice.warn{background:rgba(245,158,11,.08);color:#fde68a;border:1px solid rgba(245,158,11,.15)}
+.hidden{display:none !important}
+.spinner{width:16px;height:16px;border:2px solid rgba(10,10,12,.15);border-top-color:#0a0a0c;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{max-width:1320px;margin:16px auto 0;padding:0 22px 32px;color:var(--dim);font-family:'Fragment Mono',monospace;font-size:10px}
+.admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.64);backdrop-filter:blur(10px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+.admin-overlay.open{display:flex}
+.admin-modal{width:min(1120px,100%);max-height:92vh;overflow:auto;background:#0c0c0e;border:1px solid var(--line2);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.admin-top{position:sticky;top:0;z-index:1;background:rgba(12,12,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.admin-title{font-family:'Instrument Serif',serif;font-size:22px}
+.admin-title i{color:var(--accent2);font-style:italic}
+.admin-grid{display:grid;grid-template-columns:300px 1fr}
+@media(max-width:880px){.admin-grid{grid-template-columns:1fr}}
+.admin-side{border-right:1px solid var(--line);padding:16px;background:var(--bg2);display:grid;gap:14px;align-content:start}
+.admin-main{padding:18px;display:grid;gap:16px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.stat-row{grid-template-columns:1fr}}
+.stat{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--bg2)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 12px;background:var(--card2);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.online{background:var(--ok)} .dot.offline{background:#3f3f46} .dot.banned{background:var(--bad)}
+.admin-input{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 11px;color:var(--ink);font-size:12.5px;width:100%}
+.admin-actions{display:flex;gap:6px;flex-wrap:wrap}
+.icon-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 9px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer}
+.icon-btn:hover{background:var(--card2)}
+.icon-btn.danger{border-color:rgba(239,68,68,.25);color:#fecaca;background:rgba(239,68,68,.08)}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+.screen-mock{aspect-ratio:16/10;background:#050507;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;display:grid;place-items:center}
+.screen-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.62),transparent 45%);display:flex;align-items:end;padding:12px}
+.lock{padding:10px 12px;background:rgba(10,10,12,.85);border:1px solid var(--line2);border-radius:10px;color:#f5f1e8;font-size:11px;backdrop-filter:blur(8px)}
+.consent-overlay{position:fixed;inset:0;background:rgba(0,0,0,.74);backdrop-filter:blur(10px);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.consent-overlay.open{display:flex}
+.consent-card{width:min(560px,100%);background:#f5f1e8;color:#0a0a0c;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5);border:1px solid #e8d5b5}
+.consent-head{padding:18px 20px;border-bottom:1px solid #e8d5b5;display:flex;gap:12px;align-items:start}
+.consent-body{padding:18px 20px;font-size:13px;line-height:1.6;color:#2a2a2e}
+.consent-actions{padding:14px 20px;background:#efe7d6;border-top:1px solid #e8d5b5;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+/* ── Mobile-first polish ── */
+@media(max-width:640px){
+  .header-inner{padding:10px 14px;gap:10px}
+  .brand h1{font-size:20px}
+  .brand p{font-size:9px}
+  .tabs{width:100%;justify-content:stretch;padding:3px}
+  .tab-btn{flex:1 1 auto;text-align:center;padding:8px 6px;font-size:11px}
+  .container{padding:14px 12px 28px}
+  .card-body{padding:14px}
+  .card-head{padding:12px 14px}
+  .card-head h2{font-size:11px}
+  .input,.textarea,.select{padding:10px 11px;font-size:13px}
+  .admin-modal{border-radius:14px;margin:10px}
+  .admin-overlay{padding:10px;align-items:flex-start}
+  .admin-grid{gap:0}
+  .admin-side{padding:12px}
+  .admin-main{padding:12px}
+  .table-wrap{font-size:11px}
+  th,td{padding:8px 9px;white-space:nowrap}
+  .screen-mock{aspect-ratio:4/3}
+  #userToast{left:10px;right:10px;bottom:10px;max-width:none}
+  .consent-card{margin:10px;border-radius:14px}
+  .score-box{width:84px;height:84px;font-size:38px}
+}
+@media(max-width:380px){
+  .brand h1{font-size:18px}
+  .pills{ gap:5px}
+  .pill{padding:6px 9px;font-size:11px}
+}
+/* user notification toast */
+#userToast{position:fixed;bottom:20px;right:20px;z-index:90;max-width:420px;display:none}
+.toast{background:#f5f1e8;color:#0a0a0c;border:1px solid #e8d5b5;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.35);overflow:hidden}
+.toast-head{padding:12px 14px;border-bottom:1px solid #e8d5b5;display:flex;gap:10px;align-items:center;font-weight:700;font-size:13px}
+.toast-body{padding:12px 14px;font-size:12.5px;line-height:1.5;color:#2a2a2e}
+.toast-actions{padding:10px 14px;background:#efe7d6;border-top:1px solid #e8d5b5;display:flex;gap:8px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<!-- SITE GATE — måste ha konto skapat av admin -->
+<div id="siteGate" class="consent-overlay open" style="z-index:120;background:rgba(7,7,9,.96);backdrop-filter:blur(12px);">
+  <div class="consent-card" style="max-width:420px;background:var(--card);color:var(--ink);border:1px solid var(--line2)">
+    <div style="padding:22px 22px 0;text-align:center">
+      <div class="mark" style="margin:0 auto 10px;transform:rotate(-1deg)">E×</div>
+      <div style="font-family:'Instrument Serif',serif;font-size:26px;line-height:1">Inloggning krävs</div>
+      <div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px">Examina Studierum — Västerås</div>
+    </div>
+    <div style="padding:18px 20px;display:grid;gap:10px">
+      <div class="notice info" style="justify-content:center;text-align:center">Du måste ha ett konto skapat av en <strong>admin</strong> för att få access till hemsidan.</div>
+      <label class="label">Användarnamn</label>
+      <input id="siteLoginUsername" class="admin-input" type="text" placeholder="Skriv användarnamn, t.ex. Chef" autocomplete="username">
+      <label class="label">Lösenord</label>
+      <input id="siteLoginPass" class="admin-input" type="password" placeholder="Lösenord" autocomplete="current-password">
+      <button id="siteGateLoginBtn" class="btn btn-primary" style="margin-top:4px">Logga in →</button>
+      <div id="siteGateMsg" class="notice hidden"></div>
+      <div style="padding:10px 11px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.5">
+        Ingen registrering utan admin. Be en admin skapa ditt konto.
+      </div>
+    </div>
+    <div style="padding:10px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--dim)">Säker inloggning • localStorage demo</span>
+      <span id="siteGateStatus" class="mono" style="font-size:10px;color:var(--muted)"></span>
+    </div>
+  </div>
+</div>
+<header>
+  <div class="header-inner">
+    <div class="brand"><div class="mark">E×</div><div><h1>Examina <i>Studierum</i></h1><p>Tryckt 2026 — Förhör • Rättning • Repetition</p></div></div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="exam">Förhör & Rättning</button>
+      <button class="tab-btn" data-tab="study">Studierum / Tutor</button>
+      <button id="userLoginBtn" class="tab-btn">Elev-login</button>
+      <button id="adminOpenBtn" class="tab-btn">Admin</button>
+    </nav>
+    <button id="headerLogoutBtn" class="btn btn-ghost btn-sm" style="display:none; border-color:rgba(239,68,68,.28); color:#fecaca; background:rgba(239,68,68,.08)">Logga ut</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- GEMINI API — för utförliga svar på alla frågor -->
+  <div id="geminiCard" class="card" style="margin-bottom:18px;border:1px solid #e8d5b5;background:linear-gradient(180deg,rgba(242,230,201,.06),transparent)">
+    <div class="card-head" style="padding:10px 14px"><h2>Gemini AI <em>— Utförliga svar</em></h2><span id="geminiBadge" class="badge">Lokal fallback</span></div>
+    <div class="card-body" style="padding:12px 14px;display:grid;gap:10px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+        <div style="flex:1;min-width:220px">
+          <label class="label">Gemini API-nyckel (sparas lokalt i webbläsaren)</label>
+          <input id="geminiKeyInput" class="admin-input" type="password" placeholder="AIza...  — tomt = lokal mall-logik">
+        </div>
+        <button id="geminiSaveBtn" class="btn btn-primary" style="width:auto;padding:10px 14px;white-space:nowrap">Spara</button>
+        <button id="geminiClearBtn" class="btn btn-ghost btn-sm">Rensa</button>
+        <button id="geminiTestBtn" class="btn btn-ghost btn-sm">Testa</button>
+      </div>
+      <div id="geminiStatus" class="notice info" style="font-size:11px">💡 Utan nyckel körs lokal mall-logik. Med nyckel (gratis från <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent2);text-decoration:underline">aistudio.google.com</a>) svarar Gemini utförligt på <strong>alla</strong> frågor — prov på rätt betyg + studiehjälp “Lär mig 1+1” → förklaring + quiz.</div>
+    </div>
+  </div>
+  <section id="examView">
+    <div id="examSetup" class="grid grid-2">
+      <div class="card">
+        <div class="card-head"><h2>Exam Setup <em>— Konfigurera förhör</em></h2><span class="badge">Steg 1</span></div>
+        <div class="card-body">
+          <label class="label">Källtext / Ämne *</label>
+          <textarea id="sourceInput" class="textarea" placeholder="Klistra in lärobokstext, anteckningar eller bara ett ämne..."></textarea>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+            <button class="chip" data-example="fotosyntes">🌱 Fotosyntes</button><button class="chip" data-example="revolution">🇫🇷 Franska revolutionen</button><button class="chip" data-example="demokrati">🏛️ Demokrati</button><button class="chip" data-example="energy">⚡ Energi</button>
+          </div>
+          <p class="hint">Lång källtext = mer precisa frågor. Kort ämnesord funkar.</p>
+          <div class="divider"></div>
+          <div class="row">
+            <div><label class="label">Antal frågor</label><div class="range-wrap"><input id="qCount" class="range" type="range" min="3" max="12" value="6"><div id="qCountVal" class="count-bubble">6</div></div></div>
+            <div><label class="label">Skolnivå</label><select id="gradeLevel" class="select"><option>Åk 4-6</option><option>Åk 7</option><option selected>Åk 8</option><option>Åk 9</option><option>Gymnasiet Åk 1</option><option>Gymnasiet Åk 2</option><option>Gymnasiet Åk 3</option><option>Vuxenutbildning</option></select></div>
+          </div>
+          <div class="row" style="margin-top:14px">
+            <div><label class="label">Svårighetsgrad</label><div class="pills" id="difficultyPills"><button class="pill active" data-diff="Easy">Easy</button><button class="pill" data-diff="Medium">Medium</button><button class="pill" data-diff="Hard">Hard</button></div></div>
+            <div><label class="label">Målbetyg</label><div class="pills" id="targetPills"><button class="pill" data-grade="E">E</button><button class="pill" data-grade="D">D</button><button class="pill" data-grade="C">C</button><button class="pill active" data-grade="B">B</button><button class="pill" data-grade="A">A</button></div></div>
+          </div>
+          <div style="margin-top:14px"><label class="label">Språk</label><select id="language" class="select"><option value="sv" selected>🇸🇪 Svenska</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="fr">🇫🇷 Français</option><option value="de">🇩🇪 Deutsch</option></select></div>
+          <div style="margin-top:16px"><label class="label">Bedömningskriterier — Lgr22 / Gy11 (redigerbar)</label><div class="preset-row" id="presetRow"><button class="preset-btn" data-preset="E">E Foundational</button><button class="preset-btn" data-preset="C">C Analytical</button><button class="preset-btn active" data-preset="B">B</button><button class="preset-btn" data-preset="A">A Complex</button><button class="preset-btn" data-preset="custom">✎ Custom</button></div><textarea id="criteriaBox" class="textarea" style="min-height:140px"></textarea></div>
+          <button id="generateBtn" class="btn btn-primary" style="margin-top:18px">✦ Generera förhör</button>
+        </div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="card"><div class="card-head"><h2>Hur rättningen <em>fungerar</em></h2></div><div class="card-body" style="display:grid;gap:10px"><div class="kpi"><i>◍</i><div><strong style="font-size:13px">Källtrohet</strong><div style="font-size:11px;color:var(--muted)">Varje svar jämförs mot din text.</div></div></div><div class="kpi"><i>◎</i><div><strong style="font-size:13px">Svenska betyg E-A</strong><div style="font-size:11px;color:var(--muted)">E → C → A enligt Lgr22.</div></div></div><div class="kpi"><i>✦</i><div><strong style="font-size:13px">Max Grade per fråga</strong><div style="font-size:11px;color:var(--muted)">E: Sant/Falskt+Flerval (klick) • C: +Skriv 33% • A: 100% Långsvar — enl. Lgr22.</div></div></div></div></div>
+        <div class="card"><div class="card-head"><h2>Förhandsvisning</h2><span class="badge" id="previewBadge">6 frågor • B • Medium</span></div><div class="card-body" id="previewBox" style="display:grid;gap:8px"></div></div>
+      </div>
+    </div>
+    <div id="examTaking" class="hidden">
+      <div class="card"><div class="card-head" style="flex-wrap:wrap"><h2>Pågående förhör <em>— Svara här</em></h2><div style="display:flex;gap:8px;align-items:center"><span id="takingMeta" class="meta">—</span><button id="abandonBtn" class="btn btn-ghost btn-sm">← Till setup</button></div></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:240px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px"><span id="progressLabel">0 / 6</span><span id="timerLabel" class="mono">00:00</span></div><div class="progress"><div id="progressBar"></div></div></div><button id="submitExamBtn" class="btn btn-primary" style="width:auto;padding:11px 18px">Lämna in & Rätta</button></div>
+          <div id="questionsContainer"></div>
+        </div>
+      </div>
+    </div>
+    <div id="examResults" class="hidden">
+      <div class="grid" style="grid-template-columns:1.1fr .9fr;gap:18px">
+        <div class="card"><div class="card-head"><h2>Resultat <em>& återkoppling</em></h2><span id="overallBadge" class="badge">—</span></div><div class="card-body"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div id="scoreCircle" class="score-box">—</div><div style="flex:1;min-width:200px"><div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Overall Average Grade</div><div id="overallGrade" style="font-family:'Instrument Serif',serif;font-size:44px">—</div><div id="overallDesc" style="font-size:12px;color:var(--muted)">—</div><div id="criteriaUsed" class="notice info" style="margin-top:10px">—</div></div></div><div class="divider"></div><h3 style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Per fråga</h3><div id="perQuestionResults" style="display:grid;gap:10px"></div><div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button id="retakeBtn" class="btn btn-ghost" style="flex:1">Gör om</button><button id="newExamBtn" class="btn btn-primary" style="flex:1">Nytt förhör</button></div></div></div>
+        <div class="grid" style="align-content:start"><div class="card" style="border-left:2px solid var(--ok)"><div class="card-head"><h2>✓ What You Already Know</h2></div><div class="card-body"><ul id="strengthsList" style="display:grid;gap:8px;list-style:none"></ul></div></div><div class="card" style="border-left:2px solid var(--warn)"><div class="card-head"><h2>→ What To Work On</h2></div><div class="card-body"><ul id="tipsList" style="display:grid;gap:8px;list-style:none"></ul></div></div><div class="card"><div class="card-head"><h2>Källtext</h2></div><div class="card-body"><div id="sourceEcho" style="font-size:12px;color:#c8c8ce;white-space:pre-wrap;line-height:1.6;background:var(--bg2);border:1px solid var(--line);padding:11px;border-radius:12px;max-height:150px;overflow:auto"></div></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="studyView" class="hidden">
+    <div class="grid grid-2">
+      <div class="grid" style="align-content:start">
+        <div class="card"><div class="card-head"><h2>Studiematerial <em>— Text & bild</em></h2><span class="badge">AI Analysis</span></div><div class="card-body"><label class="label">Klistra in anteckningar</label><textarea id="studyText" class="textarea" placeholder="T.ex. Cellandning är motsatsen till fotosyntes..."></textarea><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button class="chip" data-study-example="cell">🧬 Cellandning</button><button class="chip" data-study-example="industrial">🏭 Industriella rev.</button><button class="chip" data-study-example="grammar">📖 Tysk grammatik</button></div><label class="label" style="margin-top:16px">Eller ladda upp bild</label><label id="dropZone" class="drop"><input id="imageUpload" type="file" accept="image/*" hidden><div style="font-size:20px;opacity:.7">⬚</div><div style="font-weight:650;margin-top:6px;font-size:12px">Dra & släpp bild eller klicka</div><div id="fileName" style="margin-top:8px;font-size:11px;font-weight:700;color:var(--accent2)"></div><img id="previewImg" style="max-width:100%;max-height:170px;margin:10px auto 0;display:none;border-radius:12px;border:1px solid var(--line)"></label><button id="analyzeBtn" class="btn btn-primary" style="margin-top:14px">Analysera</button><div id="analyzeStatus" class="notice info hidden" style="margin-top:10px"></div></div></div>
+        <div class="card"><div class="card-head"><h2>Fråga <em>— Q&A Chatt</em></h2><span class="badge">Instant</span></div><div class="chat"><div id="chatLog" class="chat-log"><div class="bubble bot">Hej! Klistra in material och tryck Analysera — eller skriv direkt t.ex. <em>“Lär mig 1+1”</em> så förklarar jag och ger ett mini-quiz (2–3 frågor) här bredvid.</div></div><div class="chat-input"><input id="chatInput" placeholder="T.ex. Lär mig 1+1 eller Förklara fotosyntes…"><button id="chatSend" class="btn btn-primary" style="width:auto;border-radius:999px;padding:10px 16px">Skicka</button></div></div><div style="padding:10px 12px;background:var(--bg2);border-top:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap"><button class="chip quickQ" data-q="Sammanfatta viktigast på 3 punkter">3 punkter</button><button class="chip quickQ" data-q="Förklara som för åk 7, enkelt">Förklara enkelt</button><button class="chip quickQ" data-q="Ge mig ett exempel på hur ett A-svar skulle se ut">Visa A-svar</button><button class="chip quickQ" data-q="Testa mig med en följdfråga">Testa mig</button></div></div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="card"><div class="card-head"><h2>Sammanfattning <em>— Key points</em></h2><button id="copySummary" class="btn btn-ghost btn-sm">Copy</button></div><div class="card-body" id="summaryBox"><div class="notice info">Ingen analys ännu.</div></div></div>
+        <div class="card"><div class="card-head"><h2>Micro-Quiz <em>— 2–3 frågor för förståelse</em></h2><span id="quizProgress" class="badge">0/3</span></div><div class="card-body" id="microQuizBox"><div class="notice info">Quiz genereras från det du ber om — t.ex. “Lär mig 1+1” → 2–3 frågor direkt.</div></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Honest consent - NOT disguised as cookies or account verification -->
+<div id="consentOverlay" class="consent-overlay">
+  <div class="consent-card">
+    <div class="consent-head"><div style="width:38px;height:38px;border-radius:10px;background:#0a0a0c;color:#f5f1e8;display:grid;place-items:center;font-weight:800">◐</div><div><div style="font-weight:800;font-size:14px">Förfrågan om handlednings-vy</div><div style="font-size:11px;color:#6a6a70;font-family:'Fragment Mono',monospace">Tydligt samtycke — separat från cookies & verifiering</div></div></div>
+    <div class="consent-body" style="text-align:center;padding:28px 20px">
+      <p style="font-size:15px;font-weight:600">Din admin/lärare ber om att få se din aktivitet i Examina</p>
+      <p style="margin-top:6px;font-size:11px;color:#6a6a70;font-family:'Fragment Mono',monospace">Hej <span id="consentName">—</span> — tryck Tillåt för att godkänna</p>
+    </div>
+    <div class="consent-actions"><button id="consentDeny" class="btn btn-ghost" style="background:#fff;border-color:#d6c8b6;color:#0a0a0c">Neka — tillåt inte</button><button id="consentAllow" class="btn" style="background:#0a0a0c;color:#f5f1e8">Tillåt handlednings-vy ✓</button></div>
+  </div>
+</div>
+
+<!-- USER LOGIN -->
+<div id="userLoginOverlay" class="admin-overlay" style="z-index:55">
+  <div class="admin-modal" style="max-width:520px">
+    <div class="admin-top"><div class="admin-title">Elev-login <i>— Demo</i></div><button id="userLoginClose" class="btn btn-ghost btn-sm">Stäng</button></div>
+    <div style="padding:18px;display:grid;gap:12px">
+      <p style="font-size:12px;color:var(--muted)">Skriv användarnamn och lösenord. Kontot måste vara skapat av en admin. Endast <em>elever</em> får handlednings-förfrågan.</p>
+      <input id="loginUsername" class="admin-input" type="text" placeholder="Användarnamn, t.ex. Chef" autocomplete="username">
+      <input id="loginPass" class="admin-input" type="password" placeholder="Lösenord" autocomplete="current-password">
+      <button id="doLoginBtn" class="btn btn-primary">Logga in</button>
+      <div id="loginMsg" class="notice hidden"></div>
+      <div style="padding:11px 12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;font-size:11px;color:var(--muted)"><strong>Inloggad:</strong> <span id="currentUserLabel" class="mono">— ingen —</span> <button id="logoutBtn" class="btn btn-ghost btn-sm" style="margin-left:8px;display:none">Logga ut</button></div>
+      <div id="consentSettings" class="hidden" style="padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)"><div style="font-size:12px;font-weight:700">Samtycke</div><label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px"><input id="consentToggle" type="checkbox"> Tillåt handlednings-vy</label><div style="font-size:11px;color:var(--muted);margin-top:4px">Återkalla när som helst — admin tappar åtkomst direkt.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminOverlay" class="admin-overlay">
+  <div class="admin-modal">
+    <div class="admin-top">
+      <div><div class="admin-title">Admin <i>Panel</i> — <span style="font-family:'Fragment Mono',monospace;font-size:11px;color:var(--muted)">Konton • Närvaro • Moderering</span></div><div style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--dim)">Genväg: Ctrl+Shift+Ö • Endast för admins</div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="badge live">● Admin</span><button id="adminClose" class="btn btn-ghost btn-sm">Stäng ✕</button></div>
+    </div>
+    <div id="adminGate" style="padding:28px;max-width:520px;margin:0 auto">
+      <h3 style="font-family:'Instrument Serif',serif;font-size:26px">Ange admin-kod</h3>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">Demo-panel. I produktion: SSO + 2FA.</p>
+      <div style="margin-top:14px;display:grid;gap:8px"><input id="adminCodeInput" class="admin-input" type="password" placeholder="Admin-kod"><button id="adminLoginBtn" class="btn btn-primary">Lås upp</button><div id="adminGateMsg" class="notice hidden"></div></div>
+    </div>
+    <div id="adminApp" class="hidden">
+      <div class="admin-grid">
+        <aside class="admin-side">
+          <div class="card"><div class="card-body" style="padding:14px">
+            <div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Skapa konto — ingen e-post krävs</div>
+            <div style="display:grid;gap:9px;margin-top:11px">
+              <input id="newName" class="admin-input" placeholder="Namn / Användarnamn *">
+              <select id="newRole" class="admin-input"><option value="elev">Elev</option><option value="lärare">Lärare</option><option value="admin">Admin</option><option value="Owner">Owner</option></select>
+              <input id="newPass" class="admin-input" placeholder="Lösenord (valfritt)">
+              <label style="display:flex;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:var(--card);font-size:12px;cursor:pointer">
+                <input id="newScreenview" type="checkbox" checked> <span>Tillåt handledning <span style="color:var(--muted)">(kräver elevens samtycke)</span></span>
+              </label>
+              <button id="createAccountBtn" class="btn btn-primary" style="padding:11px">+ Skapa konto</button>
+              <div id="createMsg" class="notice hidden"></div>
+            </div>
+          </div>
+          <div class="card"><div class="card-body" style="padding:14px">
+            <div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Filter</div>
+            <input id="userSearch" class="admin-input" placeholder="Sök namn…" style="margin-top:8px">
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="chip" data-filter="all">Alla</button><button class="chip" data-filter="online">Online</button><button class="chip" data-filter="consent">Med samtycke</button></div>
+            <button id="exportBtn" class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px">Exportera JSON</button>
+          </div></div>
+        </aside>
+        <main class="admin-main">
+          <div class="stat-row">
+            <div class="stat"><div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Användare</div><b id="statTotal">—</b></div>
+            <div class="stat"><div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Online</div><b id="statOnline">—</b></div>
+            <div class="stat"><div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Med samtycke</div><b id="statConsent">—</b></div>
+          </div>
+          <div class="card"><div class="card-head"><h2>Användare <em>— Hantera konton</em></h2><span class="badge" id="userCountBadge">—</span></div><div class="table-wrap"><table><thead><tr><th>Status</th><th>Namn</th><th>Roll</th><th>Handledning</th><th>Åtgärder</th></tr></thead><tbody id="userTableBody"></tbody></table></div></div>
+          <div class="card"><div class="card-head"><h2>Live-sessioner <em>— Endast med samtycke</em></h2><span class="badge live">Live</span></div><div class="card-body"><div id="liveSessions" style="display:grid;gap:10px"></div></div></div>
+          <div class="card"><div class="card-head"><h2>Audit-logg</h2><button id="clearLogBtn" class="btn btn-ghost btn-sm">Rensa</button></div><div id="auditLog" style="max-height:180px;overflow:auto;display:grid;gap:6px;padding:14px;font-family:'Fragment Mono',monospace;font-size:11px"></div></div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screenModal" class="admin-overlay" style="z-index:70">
+  <div class="admin-modal" style="max-width:820px">
+    <div class="admin-top"><div><div style="font-weight:700">Handlednings-vy — <span id="screenUserName" class="mono" style="color:var(--accent2)"></span></div><div style="font-size:11px;color:var(--muted)">Visar endast aktivitet i Examina — med samtycke.</div></div><button id="screenClose" class="btn btn-ghost btn-sm">Stäng</button></div>
+    <div style="padding:18px;display:grid;gap:14px">
+      <div class="screen-mock" id="screenMock">
+        <div id="screenLiveView" style="width:100%;height:100%;display:grid;place-items:center;padding:22px"></div>
+        <div class="screen-overlay"><span class="lock">🔒 Eleven ser indikatorn “Handledare tittar” och kan återkalla när som helst</span></div>
+      </div>
+      <div id="screenDenied" class="notice warn hidden">⛔ Åtkomst nekad — saknar samtycke eller handledning AV.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="kickFromView" class="icon-btn danger">Kick</button><button id="banFromView" class="icon-btn danger">Ban</button><button id="msgUserBtn" class="icon-btn">Meddelande</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for honest request -->
+<div id="userToast">
+  <div class="toast">
+    <div class="toast-head"><span style="width:8px;height:8px;background:var(--ok);border-radius:50%;display:inline-block;box-shadow:0 0 0 4px rgba(16,185,129,.15)"></span> Förfrågan om handlednings-vy</div>
+    <div class="toast-body" id="toastBody">Din admin/lärare ber om att få se din aktivitet i Examina</div>
+    <div class="toast-actions"><button id="toastDeny" class="btn btn-ghost btn-sm">Neka</button><button id="toastAccept" class="btn btn-primary" style="width:auto">Tillåt ✓</button></div>
+  </div>
+</div>
+
+<footer>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <span>© 2026 Examina Studierum — Lokal demo. Admin: Ctrl+Shift+Ö.</span>
+    <span>Västerås • v2.9 — neka visar förfrågan igen vid nästa login</span>
+  </div>
+</footer>
+
+<script>
+const presets={
+  E:`Nivå E — Godkänd (grundläggande):
+• Du visar grundläggande kunskaper — kan återge och beskriva begrepp med viss säkerhet
+• Frågetyp: ENDAST klicka-rätt-svar (Sant/Falskt + Flerval) — enkel återgivning, inga skrivfrågor
+• Lgr22: enkla resonemang, exempel på begreppsförståelse`,
+  D:`Nivå D — Mellan E och C:
+• Du ligger mellan grundläggande och goda kunskaper
+• Frågetyp: mest klick (75%) + enstaka skrivfråga (25%) — brygga mot C`,
+  C:`Nivå C — Väl godkänd (goda kunskaper):
+• Du visar goda kunskaper — kan förklara, använda begrepp, se samband och ge utvecklade exempel
+• Frågetyp: ca 67% klick (Flerval/Sant-Falskt, svårare än E) + 33% skrivfrågor (förklara samband/jämföra)
+• Lgr22: utvecklade resonemang, underbyggt med fakta`,
+  B:`Nivå B — Mellan C och A:
+• Du ligger mellan goda och mycket goda kunskaper
+• Frågetyp: ca 67% skrivfrågor + 33% klick — mot A-nivå`,
+  A:`Nivå A — Mycket väl godkänd (mycket goda kunskaper):
+• Du visar mycket goda kunskaper — kan analysera, värdera, generalisera, nyansera och föra välutvecklade resonemang
+• Frågetyp: ENDAST skrivfrågor (100% Långsvar) — svåraste analys/värdering/problematisering
+• Lgr22: välutvecklade och nyanserade resonemang, flera perspektiv, källkritiskt tänkande`
+};
+const languageNames={sv:'Svenska',en:'English',es:'Español',fr:'Français',de:'Deutsch'};
+let difficulty='Medium',targetGrade='B',criteriaPreset='B',examData=null,answers={},timer=null,startTime=null;
+let studyContext={text:'',hasImage:false,imageName:'',summary:[],microQuiz:[],history:[],lastTopic:'',pendingQuiz:null};
+let conversationHistory=[]; // global för Gemini-minne
+// ── GEMINI API ──────────────────────────────────────────────
+const LS_GEMINI="examina_gemini_key";
+function getGeminiKey(){ try{return (localStorage.getItem(LS_GEMINI)||"").trim();}catch{return ""} }
+function setGeminiKey(k){ try{ if(k&&k.trim()) localStorage.setItem(LS_GEMINI,k.trim()); else localStorage.removeItem(LS_GEMINI);}catch{} updateGeminiUI(); }
+function updateGeminiUI(){
+  const k=getGeminiKey();
+  const inp=document.getElementById('geminiKeyInput');
+  const badge=document.getElementById('geminiBadge');
+  const status=document.getElementById('geminiStatus');
+  if(inp && inp!==document.activeElement) inp.value=k;
+  if(badge){ badge.textContent = k ? "● Gemini aktiv — utförliga svar" : "Lokal fallback"; badge.className = k ? "badge ok" : "badge"; }
+  if(status){
+    if(k) { status.className="notice success"; status.innerHTML=`✅ Gemini-nyckel sparad lokalt. Alla frågor (prov + “Lär mig 1+1”) besvaras nu utförligt via <strong>Gemini 1.5 Flash</strong>. Nyckeln lämnar aldrig din webbläsare mer än till Google.`; }
+    else { status.className="notice info"; status.innerHTML=`💡 Utan nyckel körs lokal mall-logik. Med nyckel (gratis från <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent2);text-decoration:underline">aistudio.google.com</a>) svarar Gemini utförligt på <strong>alla</strong> frågor — prov på rätt betyg + studiehjälp.`; }
+  }
+}
+async function callGemini(prompt, opts={}){
+  const key=getGeminiKey();
+  if(!key) throw new Error("Ingen Gemini-nyckel sparad.");
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+  const body={ contents:[{role:"user", parts:[{text:prompt}]}], generationConfig:{ temperature: opts.temperature??0.7, maxOutputTokens: opts.maxTokens??2048 } };
+  const res=await fetch(url,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!res.ok){
+    const txt=await res.text().catch(()=>"");
+    let msg=`Gemini ${res.status}`;
+    try{ const j=JSON.parse(txt); msg+=`: ${j.error?.message||txt.slice(0,300)}`; }catch{ msg+=`: ${txt.slice(0,300)}`; }
+    throw new Error(msg);
+  }
+  const data=await res.json();
+  const text=data.candidates?.[0]?.content?.parts?.map(p=>p.text).join("") || "";
+  if(!text) throw new Error("Tomt svar från Gemini.");
+  return text;
+}
+function extractJSON(text){
+  // försök hitta JSON-array i svaret (hanterar ```json ... ```)
+  const m=text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  let cand=m?m[1]:text;
+  cand=cand.trim();
+  // hitta första [ till sista ]
+  const s=cand.indexOf('['); const e=cand.lastIndexOf(']');
+  if(s!==-1 && e!==-1 && e>s) cand=cand.slice(s,e+1);
+  return JSON.parse(cand);
+}
+async function geminiExplain(query, contextText, historyOverride){
+  const hist = historyOverride || conversationHistory || studyContext.history || [];
+  const historyText = hist.slice(-8).map(h=>`${h.role==='user'?'Elev':'Du'}: ${h.text.slice(0,200)}`).join('\n');
+  const prompt=`Du är studiehjälpen i Examina Studierum — 10x smartare pedagogisk AI för svenska elever Åk 7-9 och gymnasiet. Svara ALLTID på svenska, extremt utförligt, tydligt, med steg-för-steg, flera exempel och djup. Var saklig, engagerande och anpassa nivån till ${gradeLevel?.value||"Åk 8"}. DU HAR MINNE — kom ihåg vad eleven frågat tidigare och var konversationell.
+
+${historyText ? `Tidigare konversation (kom ihåg!):\n${historyText}\n\n` : ''}Elevens NUvarande fråga/ämne: "${query}"
+Material från eleven (om tomt: utgå bara från frågan): """${(contextText||"").slice(0,3000)}""" 
+Viktigt för minne: Om eleven precis sa "lär mig addition" och nu säger "vad sägs om subtraktion?" eller "och subtraktion?" ska du FÖRSTÅ att de vill byta ämne till SUBTRAKTION och förklara det — inte repetera addition. Var en hjälpande konversationsbot som minns: referera gärna "nyss pratade vi om addition, nu kollar vi subtraktion..." när det passar.
+
+Uppgift — var 10x smartare än en vanlig chatbot:
+1. Förklara ämnet GRUNDLIGT: vad det är (definition), varför det är viktigt, hur det funkar (mekanism/steg).
+2. Ge MINST 2-3 konkreta, varierade exempel. Om matte/addition: visa olika tal som 5+7=12, 8+2=10, 12+9=21 — inte bara 1+1. Visa tallinje, tiotals-strategi och vardagsexempel (äpplen, pengar).
+3. Gör en tydlig genomgång steg-för-steg där det passar (t.ex. addition: dela upp i tiotal).
+4. Avsluta med mini-sammanfattning i 3 punktformer + ett tips för att öva vidare.
+5. Håll språket begripligt men utförligt — inte för kort. Minst 150-250 ord om ämnet tillåter.
+6. Om frågan är bred ("addition", "fotosyntes") — täck helheten, inte bara en detalj.
+
+Svara i HTML-vänlig text (använd <strong>, <br>, <div>, <span class="mono"> för formler) — ingen JSON. Var utförlig!`;
+  const text=await callGemini(prompt, {temperature:0.6, maxTokens:1800});
+  return text;
+}
+async function geminiGenerateExam({source,count,targetGrade,gradeLevel,language}){
+  const prompt=`Du är svensk provkonstruktör (Lgr22/Gy11) — följ EXAKT svenskt betygssystem. Skapa exakt ${count} provfrågor baserat PÅ KÄLLTEXTEN nedan. ALLA frågor ska vara på betyget "${targetGrade}" — följ fördelningen stenhårt:
+
+BETYG — FRÅGETYP (VIKTIGT, följ exakt):
+- E (grundläggande): ENDAST type "tf" eller "mcq" (klicka-rätt-svar). INGA long. Enkla frågor: återge, beskriva, känna igen begrepp. T.ex. "Vad betyder X?" / "Sant/Falskt".
+- D: 75% tf/mcq + 25% long (brygga E→C)
+- C (goda kunskaper): ca 33% long + 67% tf/mcq. Long kräver förklaring/samband/jämförelse, mcq/tf ska vara svårare än E (kräver förståelse, inte bara minne).
+- B: ca 67% long + 33% mcq
+- A (mycket goda): ENDAST type "long" (skrivfrågor), 100% skriv, svåraste nivån — kräver analys, värdering, jämförelse av perspektiv, nyansering, problematisering, koppling till nya sammanhang.
+
+Alla frågor på samma betygsnivå som "${targetGrade}" — blanda aldrig nivåer. Varje fråga ska vara unik och genomtänkt.
+
+Källtext: """${source.slice(0,4000)}"""
+Målbetyg: ${targetGrade}
+Årskurs: ${gradeLevel}
+Språk: ${language}
+Antal frågor: ${count}
+Bedömningskriterier (Lgr22): ${targetGrade==='E'?'E: grundläggande, enkel återgivning — bara tf/mcq':targetGrade==='C'?'C: goda kunskaper, utvecklade — ca 33% long':targetGrade==='A'?'A: mycket goda, nyanserat — 100% long, svåraste analys':targetGrade}
+
+KRITISKA REGLER — DU MÅSTE FÖLJA DESSA (annars underkänt prov):
+1. ALLA ${count} frågor MÅSTE vara HELT OLIKA — ingen får upprepa samma text, samma tal eller samma vinkling. Varje fråga ska testa OLIKA del av källtexten, olika begrepp och olika tänkande. Duplicera ALDRIG.
+2. VARJE fråga MÅSTE ligga exakt på nivån "${targetGrade}" — inte E om C begärts. E=enkelt minne, C=förklara/samband, A=analysera/värdera/nyansera. Svårighetsgraden ska synas i formuleringen.
+3. FÖRSTÅ UPPGIFTEN: Läs källtexten noga, identifiera nyckelbegrepp, och skapa frågor som PRÖVAR förståelse av JUST DENNA TEXT — inte generiska skolfrågor.
+
+SPECIAL — MATTE (VIKTIGT): Om källtexten är matte som "addition", "1+1", "matte", "räkna" → SKAPA VARIERADE RÄKNEUPPGIFTER med olika tal, INTE samma tal om och om. Exempel: för addition på E: 5+7, 8+2, 12+9, 3+4, 9+6 — alla med olika tal. För A: större tal + textuppgifter med resonemang (t.ex. 188+96 i budget). Gör aldrig 6x "1+1". Varje räkneuppgift = unikt talpar. Var smart!
+
+Returnera ENDAST giltig JSON-array (ingen markdown, ingen förklaring) med exakt ${count} objekt. Varje objekt:
+{"type":"tf"|"mcq"|"long","text":"frågans text — UNIK för varje objekt","options":["alt1","alt2",...],"correct":"rätt svar (tomt för long)","rubric":"bedömnings-rubrik för long, annars tomt"}
+
+Regler (följ betygets frågetyp ovan stenhårt!):
+- För E: skapa ENDAST "tf" och "mcq". För A: skapa ENDAST "long". För C: blanda enligt fördelning ovan.
+- "tf": text ska vara "Påstående: \\"...\\" — Sant eller falskt?" , options ["Sant","Falskt"], correct "Sant" eller "Falskt". För matte E: "Påstående: 5 + 7 = 12 — Sant eller falskt?" (enkla tal)
+- "mcq": text är frågan, options är 3-4 alternativ (shuffla så rätt hamnar olika), correct är exakt ett av options. För matte C: svårare tal, t.ex. 34+27.
+- "long": text är instruktionen, options [], correct "", rubric kort anvisning för nivån. För matte A: svåraste t.ex. "Resonera: En kund köper 3 varor för 188 kr + 96 kr, får 500 kr — hur mycket växel? Visa steg och motivera vägen." / För teori A: "Analysera nyanserat, värdera perspektiv, problematisera"
+- Gör varje fråga UNIK — upprepa aldrig samma text, samma tal eller samma nyckelordskombination. Kontrollera själv att ingen fråga liknar en annan. Varje fråga = nytt begrepp/ny vinkel.
+- Använd ämnesord från källtexten, aldrig generiskt "centrala begrepp" — varje fråga ska gå att koppla direkt till källtexten.
+- Svårighetsgrad: E ska vara så enkel att en E-elev klarar (återgivning), C ska kräva förklaring/samband, A ska kräva att eleven värderar/jämför/nyanserar — formulera frågorna så att nivån syns.
+- Var 10x smartare än mallar: förstå uppgiften, var kreativ, var noggrann med unikhet och nivå.
+- Svara med ENDAST JSON — ingen extra text.`;
+  const raw=await callGemini(prompt, {temperature:0.7, maxTokens:3000});
+  const arr=extractJSON(raw);
+  if(!Array.isArray(arr) || arr.length===0) throw new Error("Kunde inte tolka JSON från Gemini.");
+  // normalisera, säkerställ unika texter OCH rätt svårighetsgrad — AI ska vara smart
+  const seen=new Set(); const out=[];
+  // Hjälpare: uppskatta om frågan matchar betyget (enkel heuristik)
+  const levelOk = (txt, grade)=>{
+    const s=txt.toLowerCase();
+    if(grade==='E' && /(analysera|värdera|nyansera|problematisera|jämför perspektiv)/.test(s)) return false;
+    if(grade==='A' && txt.length<60) return false; // A ska vara utförlig
+    return true;
+  };
+  for(let i=0;i<arr.length && out.length<count;i++){
+    let o=arr[i];
+    if(!o||!o.text) continue;
+    // AI-smart: ignorera frågor som inte matchar begärd svårighetsgrad
+    if(!levelOk(o.text, targetGrade)){
+      console.warn("Gemini fråga fel nivå, hoppar:", o.text.slice(0,60));
+      continue;
+    }
+    let t=o.text.trim();
+    // Garantera unikhet — om Gemini gav dubblett, gör den unik på riktigt
+    if(seen.has(t)){
+      let sfx=2; let base=t;
+      // försök lägga till nyans som gör frågan faktiskt annorlunda
+      const suffixesE=[" — variant med exempel"," — annan vinkling"," — följdfråga"];
+      const suffixesA=[" — nyanserat perspektiv"," — jämför och värdera"," — problematisera vidare"];
+      const sufs=targetGrade==='A'?suffixesA:targetGrade==='E'?suffixesE:[" — utveckla resonemanget"," — annan del av texten"];
+      while(seen.has(t) && sfx<6){
+        t=base+ (sufs[(sfx-2)%sufs.length]) + (sfx>3?` (v${sfx})`:``);
+        sfx++;
+      }
+      // sista utväg: suffix med nummer
+      let n=sfx; while(seen.has(t)){ n++; t=base+` (v${n})`; }
+    }
+    seen.add(t);
+    out.push({
+      id: out.length+1,
+      type: (o.type==="tf"||o.type==="mcq"||o.type==="long")?o.type:"mcq",
+      text: t,
+      options: Array.isArray(o.options)?o.options.slice(0,4):[],
+      correct: o.correct|| (o.options?.[0]||""),
+      rubric: o.rubric||getRubricForGrade(targetGrade),
+      maxGrade: targetGrade,
+      topic: source.slice(0,80),
+      keywords: extractKeywords(source).slice(0,6)
+    });
+  }
+  // Om Gemini gav för få UNIKA frågor (dubletter borttagna) — fyll upp med lokal smart fallback
+  if(out.length < count){
+    console.warn(`Gemini gav bara ${out.length}/${count} unika — fyller ${count-out.length} med lokal mall`);
+    const fallback=generateExam({source, count: count-out.length, gradeLevel, difficulty, targetGrade, language, criteria: ''});
+    fallback.questions.forEach(fq=>{
+      let txt=fq.text;
+      let sfx=1; while(seen.has(txt)){ sfx++; txt=fq.text+` (extra v${sfx})`; }
+      seen.add(txt); fq.text=txt; fq.id=out.length+1; out.push(fq);
+    });
+  }
+  // shuffla options per fråga om mcq/tF och sätt correct rätt
+  out.forEach(q=>{
+    if(q.type==="mcq" && q.options.length){
+      // om Gemini redan shufflat, behåll men säkerställ correct finns
+      if(!q.options.includes(q.correct) && q.options.length) q.correct=q.options[0];
+    }
+    if(q.type==="tf"){
+      q.options=["Sant","Falskt"];
+      if(q.correct!=="Sant" && q.correct!=="Falskt") q.correct=Math.random()>0.5?"Sant":"Falskt";
+    }
+  });
+  return out;
+}
+// — UI för Gemini-nyckel —
+setTimeout(updateGeminiUI, 80);
+document.getElementById('geminiSaveBtn')?.addEventListener('click',()=>{
+  const v=document.getElementById('geminiKeyInput')?.value.trim()||"";
+  if(!v){ alert("Klistra in din Gemini API-nyckel (börjar med AIza)."); return; }
+  if(!v.startsWith("AIza")){ if(!confirm("Nyckeln börjar inte med AIza — spara ändå?")) return; }
+  setGeminiKey(v);
+  const s=document.getElementById('geminiStatus'); s.className="notice success"; s.textContent="✅ Nyckel sparad lokalt. Testar...";
+  callGemini("Svara bara: OK",{maxTokens:10}).then(()=>{ s.textContent="✅ Gemini svarade — nyckeln fungerar! Prov och studiehjälp kör nu via Gemini."; s.className="notice success"; updateGeminiUI(); }).catch(e=>{ s.textContent="⚠️ Kunde inte nå Gemini: "+e.message+" — kontrollera nyckeln. Fallback används tills vidare."; s.className="notice warn"; });
+});
+document.getElementById('geminiClearBtn')?.addEventListener('click',()=>{
+  setGeminiKey("");
+  const inp=document.getElementById('geminiKeyInput'); if(inp) inp.value="";
+  const s=document.getElementById('geminiStatus'); s.className="notice info"; s.textContent="Nyckel rensad — lokal mall-logik används.";
+  updateGeminiUI();
+});
+document.getElementById('geminiTestBtn')?.addEventListener('click', async()=>{
+  const s=document.getElementById('geminiStatus');
+  const k=getGeminiKey();
+  if(!k){ s.className="notice warn"; s.textContent="Ingen nyckel sparad. Klistra in en nyckel och klicka Spara först."; return; }
+  s.className="notice info"; s.textContent="⏳ Testar Gemini...";
+  try{ const r=await callGemini("Besvara kort på svenska: Vad är 1+1?",{maxTokens:80}); s.className="notice success"; s.innerHTML=`✅ Gemini svarade:<br><span style="background:var(--bg2);padding:6px 8px;border-radius:8px;display:inline-block;margin-top:6px">${escapeHtml(r).slice(0,500)}</span>`; }catch(e){ s.className="notice warn"; s.textContent="❌ Test misslyckades: "+e.message; }
+});
+document.getElementById('geminiKeyInput')?.addEventListener('keydown',e=>{ if(e.key==="Enter") document.getElementById('geminiSaveBtn')?.click(); });
+const criteriaBox=document.getElementById('criteriaBox');criteriaBox.value=presets.B;
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn[data-tab]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const t=btn.dataset.tab;document.getElementById('examView').classList.toggle('hidden',t!=='exam');document.getElementById('studyView').classList.toggle('hidden',t!=='study');});});
+document.getElementById('adminOpenBtn').addEventListener('click',openAdmin);
+document.getElementById('userLoginBtn').addEventListener('click',openUserLogin);
+const qCount=document.getElementById('qCount'),qCountVal=document.getElementById('qCountVal'),gradeLevel=document.getElementById('gradeLevel'),language=document.getElementById('language'),previewBadge=document.getElementById('previewBadge');
+qCount.addEventListener('input',()=>{qCountVal.textContent=qCount.value;updatePreview();});
+gradeLevel.addEventListener('change',updatePreview);language.addEventListener('change',updatePreview);
+document.getElementById('difficultyPills').addEventListener('click',e=>{if(!e.target.dataset.diff)return;difficulty=e.target.dataset.diff;[...document.getElementById('difficultyPills').children].forEach(c=>c.classList.toggle('active',c.dataset.diff===difficulty));updatePreview();});
+document.getElementById('targetPills').addEventListener('click',e=>{if(!e.target.dataset.grade)return;targetGrade=e.target.dataset.grade;[...document.getElementById('targetPills').children].forEach(c=>c.classList.toggle('active',c.dataset.grade===targetGrade));setPreset(targetGrade);updatePreview();});
+document.getElementById('presetRow').addEventListener('click',e=>{if(!e.target.dataset.preset)return;setPreset(e.target.dataset.preset);});
+function setPreset(p){criteriaPreset=p;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===p));if(p!=='custom')criteriaBox.value=presets[p]||presets.C;}
+criteriaBox.addEventListener('input',()=>{criteriaPreset='custom';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset==='custom'));});
+document.querySelectorAll('[data-example]').forEach(ch=>{ch.addEventListener('click',()=>{const m={fotosyntes:`Fotosyntesen är processen där växter och alger omvandlar koldioxid (CO2) och vatten (H2O) med hjälp av solljus till glukos (C6H12O6) och syrgas (O2).`,revolution:`Franska revolutionen 1789–1799 var en period av stora politiska omvälvningar.`,demokrati:`Demokrati betyder folkstyre och bygger på fria val, yttrandefrihet, rättsstat.`,energy:`Hållbar energi — sol, vind, vatten.`};document.getElementById('sourceInput').value=m[ch.dataset.example];updatePreview();});});
+function updatePreview(){previewBadge.textContent=`${qCount.value} frågor • ${targetGrade} • ${difficulty} • ${languageNames[language.value]}`;const box=document.getElementById('previewBox');const n=parseInt(qCount.value);const g=gradeDistribution(targetGrade,difficulty,n);const typesForGrade=t=> t==='E' ? ['Sant/Falskt','Flerval (klicka)'] : t==='D' ? ['Sant/Falskt','Flerval','Skriv (25%)'] : t==='C' ? ['Flerval/Sant-Falskt','Skriv (33%)'] : t==='B' ? ['Skriv (67%)','Flerval'] : ['Skriv — Analys/A'];const labelFor=i=>{if(targetGrade==='E') return i%2===0?'Sant/Falskt':'Flerval'; if(targetGrade==='D') return i%4===3?'Skrivfråga':'Flerval/Sant-Falskt'; if(targetGrade==='C') return i%3===2?'Skrivfråga (svårare)':'Flerval/Sant-Falskt'; if(targetGrade==='B') return i%3===0?'Flerval':'Skrivfråga'; return 'Skrivfråga — A-nivå';};box.innerHTML=Array.from({length:Math.min(n,4)},(_,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)"><div><div style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--dim)">${labelFor(i)}</div><div style="font-size:12.5px;font-weight:600">Fråga ${i+1} — ${['Begrepp','Orsak & konsekvens','Analys','Jämförelse'][i%4]} • ${targetGrade}-nivå</div></div><span class="max-grade ${g[i]}">Max ${g[i]}</span></div>`).join('')+(n>4?`<div style="font-size:11px;color:var(--dim);text-align:center;padding-top:4px">+ ${n-4} fler på nivå ${targetGrade} …</div>`:'');}
+// NY: strikt betygsstyrd — väljer du E får du BARA E-frågor, C bara C osv. (enligt Lgr22)
+function gradeDistribution(t,d,n){return Array.from({length:n},()=>t);}
+updatePreview();
+function sleep(m){return new Promise(r=>setTimeout(r,m))}
+document.getElementById('generateBtn').addEventListener('click',async()=>{
+  const s=document.getElementById('sourceInput').value.trim();
+  if(!s){alert('Klistra in källtext först.');return;}
+  const b=document.getElementById('generateBtn');const o=b.innerHTML;b.disabled=true;
+  const hasGemini=!!getGeminiKey();
+  b.innerHTML= hasGemini ? '<span class="spinner"></span> Genererar via Gemini…' : '<span class="spinner"></span> Genererar…';
+  await sleep(300);
+  try{
+    let gen=null;
+    if(hasGemini){
+      try{
+        const gemQs=await geminiGenerateExam({source:s,count:parseInt(qCount.value),targetGrade,gradeLevel:gradeLevel.value,language:language.value});
+        // bygg examData-format kompatibelt
+        gen={source, count:gemQs.length, gradeLevel:gradeLevel.value, difficulty, targetGrade, language:language.value, criteria:criteriaBox.value, topic:s.slice(0,80), keywords:extractKeywords(s).slice(0,6), questions:gemQs};
+        logAudit(`Förhör via Gemini: ${gemQs.length} frågor på nivå ${targetGrade}`);
+      }catch(e){
+        console.warn("Gemini prov misslyckades, fallback till lokal:", e);
+        const errBox=document.createElement('div'); errBox.className='notice warn'; errBox.style.marginTop='10px'; errBox.textContent='⚠️ Gemini misslyckades ('+e.message.slice(0,120)+') — kör lokal mall istället.'; b.parentElement.appendChild(errBox); setTimeout(()=>errBox.remove(),4000);
+        gen=null;
+      }
+    }
+    if(!gen) gen=generateExam({source:s,count:parseInt(qCount.value),gradeLevel:gradeLevel.value,difficulty,targetGrade,language:language.value,criteria:criteriaBox.value});
+    examData=gen;
+  }catch(e){ alert("Kunde inte generera prov: "+e.message); b.disabled=false; b.innerHTML=o; return; }
+  answers={};renderExamTaking();showSection('taking');b.disabled=false;b.innerHTML=o;window.scrollTo({top:0,behavior:'smooth'});logAudit(`Förhör genererat: ${examData.questions.length} frågor`);trackPresence('genererade förhör');
+});
+function generateExam({source,count,gradeLevel,difficulty,targetGrade,language,criteria}){
+  const sents=source.split(/(?<=[.!?])\s+/).filter(s=>s.length>10);
+  const topic=source.length<80?source:(sents[0]||source).slice(0,80);
+  let kw=extractKeywords(source).slice(0,8);
+  if(!kw.length){
+    const rawWords = (topic+' '+source).split(/\s+/).map(w=>w.replace(/^[^a-zåäö0-9+\-]+|[^a-zåäö0-9+\-]+$/gi,'')).filter(w=>w.length>=1 && /[a-zåäö0-9]/i.test(w));
+    const seen=new Set(); const fallback=[];
+    rawWords.forEach(w=>{const lw=w.toLowerCase(); if(!seen.has(lw)){seen.add(lw); fallback.push(w);}});
+    if(fallback.length) kw=fallback.slice(0,4);
+    else kw=[(typeof cleanTopic==='function'?cleanTopic(topic):topic).slice(0,30) || 'ämnet'];
+  }
+  const isShort=source.length<120;
+  const grades=gradeDistribution(targetGrade,difficulty,count);
+  function typeForGrade(g, idx){
+    // Svenskt betygskriterium (Lgr22/Gy11):
+    // E = grundläggande — bara klicka-rätt-svar (tf/mcq), enkel återgivning
+    // C = goda kunskaper — några skriv + svårare (krav på förklaring/samband)
+    // A = mycket goda — bara skriv (long), svåraste analys/värdering/nyansering
+    if(g==='E') return idx%2===0 ? 'tf' : 'mcq'; // 100% klick: Sant/Falskt + Flerval
+    if(g==='D') return idx%4===3 ? 'long' : (idx%2===0 ? 'tf' : 'mcq'); // ~25% skriv (brygga E→C)
+    if(g==='C') return idx%3===2 ? 'long' : (idx%2===0 ? 'mcq' : 'tf'); // ~33% skriv, resten klick med utvecklade krav
+    if(g==='B') return idx%3===0 ? 'mcq' : 'long'; // ~67% skriv (brygga C→A)
+    return 'long'; // A = 100% skrivfrågor, svåraste frågorna
+  }
+  // Bygg en STOR TF-pool med unika varianter — garanterat olika frågor varje gång
+  function buildTFPool(topic, kw){
+    const k0=kw[0]||cleanTopic(topic)||topic;
+    const k1=kw[1]||k0;
+    const k2=kw[2]||k1;
+    const k3=kw[3]||k0;
+    const base=[
+      `${topic} är en grundläggande process`,
+      `${topic} påverkar samhället`,
+      `${k0} är centralt för ${topic}`,
+      `Enligt källan handlar ${topic} om ${k0}`,
+      `${k0} förekommer i texten`,
+      `${k0} och ${k1} hänger ihop i ${topic}`,
+      `Källan beskriver ${k0} som viktigt`,
+      `${topic} förklaras med hjälp av ${k0}`,
+      `${k1} är en förutsättning för ${k0} i ${topic}`,
+      `${k2} påverkar hur ${topic} fungerar`,
+      `${k0} och ${k2} samverkar i ${topic}`,
+      `${topic} kan förstås genom begreppet ${k1}`,
+      `${k3} är ett exempel på ${topic}`,
+      `I källan kopplas ${k0} till ${k1}`,
+      `${topic} beskrivs som beroende av ${k2}`
+    ];
+    // lägg till sents-varianter om vi har riktiga meningar — varje mening ger unik fråga
+    if(sents.length){
+      sents.slice(0,6).forEach((s, idx)=>{
+        const short=s.split(',')[0].slice(0,85).trim();
+        const short2=s.split('.')[0].slice(0,85).trim();
+        if(short.length>15) base.push(short);
+        if(short2.length>15 && short2!==short) base.push(short2);
+        // lägg till omskrivning med nyckelord
+        if(idx<2 && k0) base.push(`${k0}: ${short.slice(0,60)}`);
+      });
+    }
+    // shuffla och rensa dubbletter — returnera upp till 20 unika
+    const uniq=[...new Set(base.map(s=>s.trim()).filter(s=>s.length>10))];
+    // shuffla
+    for(let i=uniq.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [uniq[i],uniq[j]]=[uniq[j],uniq[i]]; }
+    return uniq.slice(0,20);
+  }
+  const tfPool = buildTFPool(topic, kw);
+  let qs=[]; const usedTexts=new Set();
+  let tfCount=0, mcqCount=0, longCount=0;
+  const usedMath=new Set();
+  for(let i=0;i<count;i++){
+    const max=grades[i];
+    const type=typeForGrade(targetGrade,i);
+    let q={id:i+1,type,maxGrade:max,topic,keywords:kw};
+    // ── 10x smartare matte: om källan är addition/matte → generera varierade tal som 5+7, 8+2 ──
+    if(isMathTopic(source)){
+      const op=getMathOp(source);
+      if(type==='tf'){
+        const p=genMathProblem(op, targetGrade, usedMath);
+        const isTrue=Math.random()>0.45;
+        let shown=p.ans;
+        if(!isTrue){ shown = p.ans + (Math.random()>0.5?1:-1)*randInt(1,3); if(shown<0) shown=p.ans+2; if(shown===p.ans) shown=p.ans+1; }
+        q.text=(targetGrade==='E'?'[E] ':'')+`Påstående: ${p.txt} = ${shown} — Sant eller falskt?`;
+        q.options=['Sant','Falskt'];
+        q.correct=(shown===p.ans)?'Sant':'Falskt';
+        let tIdx=1; let base=q.text; while(usedTexts.has(q.text)){ q.text=base+` (v${tIdx+1})`; tIdx++; }
+        usedTexts.add(q.text); qs.push(q); tfCount++; continue;
+      } else if(type==='mcq'){
+        const p=genMathProblem(op, targetGrade, usedMath);
+        const tmpls=[`Vad är ${p.txt}?`, `Räkna: ${p.txt} = ?`, `Vilket svar ger ${p.txt}?`];
+        q.text=tmpls[mcqCount % tmpls.length];
+        const corr=String(p.ans);
+        const opts=shuffle([corr, String(p.ans+1), String(Math.max(0,p.ans-1)), String(p.ans+2)]);
+        q.options=opts; q.correct=corr;
+        let tIdx=1; let base=q.text; while(usedTexts.has(q.text)){ q.text=base+` — delfråga ${tIdx+1}`; tIdx++; }
+        usedTexts.add(q.text); qs.push(q); mcqCount++; continue;
+      } else {
+        const p=genMathProblem(op, targetGrade, usedMath);
+        // Lgr22-anpassat: C = utvecklat, A = nyanserat/värderande — även för matte
+        let pr;
+        if(targetGrade==='C'){
+          pr=[`Förklara och visa hur du räknar ${p.txt} — beskriv samband och ge ett eget exempel.`, `Hur kan du dela upp ${p.txt} i tiotal för att räkna effektivt? Skriv ditt resonemang.`, `Räkna ${p.txt} och förklara varför din metod fungerar.`];
+        } else if(targetGrade==='A'){
+          pr=[`Analysera och visa två olika sätt att räkna ${p.txt} — värdera vilken metod som är effektivast och nyansera.`, `Problematisera: ${p.txt} i en textuppgift (t.ex. budget/inköp) — värdera rimlighet och generalisera.`, `Värdera: Om du ska förklara ${p.txt} för en klasskamrat — hur motiverar du varje steg och vilka fallgropar finns?`];
+        } else {
+          // D/B och övriga
+          pr=[`Skriv och visa hur du räknar ${p.txt} steg för steg. Förklara varje steg med ord.`, `Förklara med tiotal: hur löser du ${p.txt}? Skriv ditt resonemang.`, `Räkna ${p.txt} och skriv en utförlig förklaring till ditt svar.`];
+        }
+        q.text=pr[longCount % pr.length];
+        q.rubric=getRubricForGrade(max);
+        let tIdx=1; let base=q.text; while(usedTexts.has(q.text)){ q.text=base+` (v${tIdx+1})`; tIdx++; }
+        usedTexts.add(q.text); qs.push(q); longCount++; continue;
+      }
+    }
+    if(type==='tf'){
+      const isTrue=Math.random()>0.45;
+      let s=null; let attempts=0;
+      // Försök hitta en UNIK TF-text — testa olika pool-medlemmar innan vi ger upp
+      while(attempts<15){
+        let cand;
+        if(sents.length>0 && !isShort && attempts<6 && sents[tfCount % sents.length]){
+          // variera vilken mening vi tar
+          const si=(tfCount+attempts) % sents.length;
+          cand=sents[si];
+          if(targetGrade==='E' || targetGrade==='D') cand=cand.split(',')[0].slice(0,90);
+        } else {
+          cand=tfPool[(tfCount+attempts) % tfPool.length] || tfPool[0];
+        }
+        cand=isTrue?cand:negateSentence(cand);
+        let txt=localizeTF(cand,language);
+        if(targetGrade==='E') txt=`[E] `+txt;
+        if(!usedTexts.has(txt)){ s=cand; q.text=txt; break; }
+        attempts++;
+      }
+      if(!q.text){
+        // fallback — forcera unik med suffix
+        let base=s||tfPool[tfCount%tfPool.length];
+        let txt=localizeTF(isTrue?base:negateSentence(base),language);
+        if(targetGrade==='E') txt=`[E] `+txt;
+        let tIdx=1; let baseText=txt; while(usedTexts.has(txt)){ txt=baseText+` (variant ${tIdx+1})`; tIdx++; }
+        q.text=txt;
+      }
+      q.options=['Sant','Falskt'];
+      q.correct=isTrue?'Sant':'Falskt';
+      tfCount++;
+    } else if(type==='mcq'){
+      // Smart MCQ: varje fråga ska vara unik — variera nyckelord OCH mall
+      let k=null; let tpl=null; let attempts=0; let bestText=null;
+      while(attempts<12){
+        const ki=(mcqCount+attempts) % Math.max(1,kw.length);
+        const candK=kw[ki]||kw[0]||topic.split(/\s+/)[0]||cleanTopic(topic)||'ämnet';
+        // välj mall baserat på betyg och attempt för att maximera variation
+        let candTplArr;
+        if(targetGrade==='E') candTplArr=[k=>`Vad betyder "${k}"?`,k=>`Vad visar exemplet "${k}" enligt texten?`,k=>`Vilket svar är rätt för "${k}"?`,k=>`Förklara kort: vad är "${k}"?`,k=>`Känns "${k}" igen från texten — vad innebär det?`];
+        else if(targetGrade==='D') candTplArr=[k=>`Vilket påstående om "${k}" stämmer?`,k=>`Vad stämmer om "${k}" i källan?`,k=>`Vilket alternativ beskriver "${k}" korrekt?`,k=>`Hur nämns "${k}" i materialet?`];
+        else if(targetGrade==='C') candTplArr=[k=>`Vilket alternativ beskriver bäst "${k}"?`,k=>`Vilket påstående om "${k}" är mest korrekt enligt texten?`,k=>`Hur förklaras "${k}" i materialet?`,k=>`Vilket exempel illustrerar "${k}" bäst?`];
+        else candTplArr=[k=>`Analysera begreppet "${k}" — vilket alternativ visar ${targetGrade}-nivå?`,k=>`Vilket resonemang om "${k}" håller ${targetGrade}-nivå?`,k=>`Vilket alternativ visar en nyanserad förståelse av "${k}"?`,k=>`Hur värderas "${k}" i texten — vilket alternativ är mest källtroget?`];
+        const ti=(mcqCount+attempts) % candTplArr.length;
+        const candText=candTplArr[ti](candK);
+        if(!usedTexts.has(candText)){ k=candK; tpl=candText; bestText=candText; break; }
+        attempts++;
+        if(!bestText) bestText=candText;
+      }
+      if(!tpl){
+        // ingen unik hittad — ta bästa och gör suffix unik
+        const fallbackK=kw[mcqCount % kw.length]||kw[0]||'ämnet';
+        tpl=bestText||`Vad betyder "${fallbackK}"?`;
+        k=fallbackK;
+      } else {
+        // tpl already set, extract k from it is tricky — keep k as found
+      }
+      // Om vi inte redan har k, försök extrahera
+      if(!k) k=kw[mcqCount % kw.length]||kw[0]||'ämnet';
+      // Nu har vi tpl = frågetexten, men vi behöver också behålla k för options-generering
+      // Om tpl inte matchar k, sätt k korrekt
+      const templatesE=[
+        k=>`Vad betyder "${k}"?`,
+        k=>`Vad visar exemplet "${k}" enligt texten?`,
+        k=>`Vilket svar är rätt för "${k}"?`,
+        k=>`Förklara kort: vad är "${k}"?`
+      ];
+      const templatesD=[
+        k=>`Vilket påstående om "${k}" stämmer?`,
+        k=>`Vad stämmer om "${k}" i källan?`,
+        k=>`Vilket alternativ beskriver "${k}" korrekt?`
+      ];
+      const templatesC=[
+        k=>`Vilket alternativ beskriver bäst "${k}"?`,
+        k=>`Vilket påstående om "${k}" är mest korrekt enligt texten?`,
+        k=>`Hur förklaras "${k}" i materialet?`
+      ];
+      const templatesBA=[
+        k=>`Analysera begreppet "${k}" — vilket alternativ visar ${targetGrade}-nivå?`,
+        k=>`Vilket resonemang om "${k}" håller ${targetGrade}-nivå?`,
+        k=>`Vilket alternativ visar en nyanserad förståelse av "${k}"?`
+      ];
+      // Sätt frågetexten till den unika vi hittat, annars generera ny
+      if(tpl && !usedTexts.has(tpl)){
+        q.text=tpl;
+      } else if(tpl){
+        let base=tpl; let idx=1; while(usedTexts.has(base+` — delfråga ${idx+1}`)) idx++; q.text=base+` — delfråga ${idx+1}`;
+      } else {
+        // fallback — använd mall
+        if(targetGrade==='E'){
+          const tpls=templatesE; q.text=tpls[mcqCount % tpls.length](k);
+        } else if(targetGrade==='D'){
+          const tpls=templatesD; q.text=tpls[mcqCount % tpls.length](k);
+        } else if(targetGrade==='C'){
+          const tpls=templatesC; q.text=tpls[mcqCount % tpls.length](k);
+        } else {
+          const tpls=templatesBA; q.text=tpls[mcqCount % tpls.length](k);
+        }
+        let base=q.text; let idx=1; while(usedTexts.has(q.text)){ q.text=base+` — delfråga ${idx+1}`; idx++; }
+      }
+      if(targetGrade==='E'){
+        const corr=`${k}: enkel förklaring enligt källtexten`;
+        const dist=[`${k} betyder motsatsen`,`${k} har ingen betydelse`,`${k} är ett stavfel`];
+        const distVar = dist.map((d,di)=> mcqCount%2===1 && di===0 ? `${k} är felaktigt beskrivet` : d);
+        q.options=shuffle([corr,...distVar]);
+        q.correct=corr;
+      } else if(targetGrade==='D'){
+        const corr=`${k} — grundläggande förklaring med stöd i texten`;
+        const dist=[`${k} saknar samband`,`${k} uppstår bara i teorin`,`${k} är felaktigt`];
+        q.options=shuffle([corr,...dist]);
+        q.correct=corr;
+      } else if(targetGrade==='C'){
+        const corr=`${k} — korrekt förklarat med stöd i källtexten (utvecklat)`;
+        const dist=[`${k} är en slumpmässig bieffekt`,`${k} förekommer endast i lab`,`${k} saknar samband`];
+        q.options=shuffle([corr,...dist]);
+        q.correct=corr;
+      } else {
+        const tpl=templatesBA[mcqCount % templatesBA.length];
+        q.text=tpl(k);
+        const corr=`${k}: nyanserat, kopplar orsak → konsekvens och jämför perspektiv (källtroget)`;
+        const dist=[`${k}: endast definition utan exempel`,`${k}: påstående utan källstöd`,`${k}: felaktig koppling`];
+        q.options=shuffle([corr,...dist]);
+        q.correct=corr;
+      }
+      let tIdx=1; let baseText=q.text; while(usedTexts.has(q.text)){ q.text=baseText+` — delfråga ${tIdx+1}`; tIdx++; }
+      mcqCount++;
+    } else {
+      const kwIdx = longCount % kw.length;
+      const kw0 = kw[kwIdx] || cleanTopic(topic) || topic.slice(0,30);
+      const kwNext = kw[(kwIdx+1)%kw.length] || kw0;
+      const kwPair = kw.length>=2 ? `${kw0}" och "${kwNext}` : kw0;
+      const promptsE=[
+        kw0=>`Förklara med egna ord: Vad betyder "${kw0}"? (2–3 meningar räcker för E)`,
+        kw0=>`Beskriv enkelt begreppet "${kw0}" med ett eget exempel.`,
+        kw0=>`Vad innebär "${kw0}" i texten? Svara kort.`
+      ];
+      const promptsD=[
+        pair=>`Beskriv: Hur hänger "${pair}" ihop? (enkelt resonemang)`,
+        pair=>`Förklara sambandet mellan "${pair}" med egna ord.`,
+        pair=>`Ge ett enkelt exempel på "${pair}".`
+      ];
+      const promptsC=[
+        (pair, topic)=>`Förklara och ge exempel: Hur hänger "${pair}" ihop med "${topic.slice(0,40)}"?`,
+        (pair, topic)=>`Ge ett exempel som visar sambandet mellan "${pair}" i "${topic.slice(0,35)}".`,
+        (pair, topic)=>`Varför är "${pair}" viktigt för att förstå "${topic.slice(0,35)}"? Förklara.`
+      ];
+      const promptsB=[
+        (pair, topic)=>`Analysera: Hur hänger "${pair}" ihop med "${topic.slice(0,40)}"? Jämför och resonera utvecklat.`,
+        (pair, topic)=>`Jämför "${pair}" kopplat till "${topic.slice(0,40)}" — vad är likheter och skillnader?`,
+        (pair, topic)=>`Resonera utvecklat om "${pair}" i "${topic.slice(0,35)}" och ge belägg.`
+      ];
+      const promptsA=[
+        (pair, topic)=>`Analysera nyanserat: Hur hänger "${pair}" ihop med "${topic.slice(0,40)}"? Värdera, jämför perspektiv och nyansera.`,
+        (pair, topic)=>`Värdera olika perspektiv på "${pair}" i förhållande till "${topic.slice(0,35)}". Nyansera.`,
+        (pair, topic)=>`Problematisera "${pair}" i "${topic.slice(0,40)}" — vilka styrkor/svagheter finns?`
+      ];
+      // Smart Long: säkerställ unik skrivfråga — variera nyckelordskombination och mall
+      let longAttempts=0; let chosen=null;
+      while(longAttempts<12){
+        const kwIdxA=(longCount+longAttempts) % kw.length;
+        const kw0A=kw[kwIdxA] || cleanTopic(topic) || topic.slice(0,30);
+        const kwNextA=kw[(kwIdxA+1)%kw.length] || kw0A;
+        const kwPairA=kw.length>=2 ? `${kw0A}" och "${kwNextA}` : kw0A;
+        let cand;
+        if(targetGrade==='E'){
+          const tpl=promptsE[(longCount+longAttempts) % promptsE.length];
+          cand=tpl(kw0A);
+        } else if(targetGrade==='D'){
+          const tpl=promptsD[(longCount+longAttempts) % promptsD.length];
+          cand=tpl(kwPairA);
+        } else if(targetGrade==='C'){
+          const tpl=promptsC[(longCount+longAttempts) % promptsC.length];
+          cand=tpl(kwPairA, topic);
+        } else if(targetGrade==='B'){
+          const tpl=promptsB[(longCount+longAttempts) % promptsB.length];
+          cand=tpl(kwPairA, topic);
+        } else {
+          const tpl=promptsA[(longCount+longAttempts) % promptsA.length];
+          cand=tpl(kwPairA, topic);
+        }
+        if(!usedTexts.has(cand)){ chosen=cand; break; }
+        longAttempts++;
+      }
+      if(chosen){
+        q.text=chosen;
+      } else {
+        if(targetGrade==='E'){
+          const tpl=promptsE[longCount % promptsE.length];
+          q.text=tpl(kw0);
+        } else if(targetGrade==='D'){
+          const tpl=promptsD[longCount % promptsD.length];
+          q.text=tpl(kwPair);
+        } else if(targetGrade==='C'){
+          const tpl=promptsC[longCount % promptsC.length];
+          q.text=tpl(kwPair, topic);
+        } else if(targetGrade==='B'){
+          const tpl=promptsB[longCount % promptsB.length];
+          q.text=tpl(kwPair, topic);
+        } else {
+          const tpl=promptsA[longCount % promptsA.length];
+          q.text=tpl(kwPair, topic);
+        }
+        let tIdx=1; let baseText=q.text; while(usedTexts.has(q.text)){ q.text=baseText+` (v${tIdx+1})`; tIdx++; }
+      }
+      q.rubric=getRubricForGrade(max);
+      longCount++;
+    }
+    usedTexts.add(q.text);
+    qs.push(q);
+  }
+  return {source,count,gradeLevel,difficulty,targetGrade,language,criteria,topic,keywords:kw,questions:qs};
+}
+function getTFPool(t,l){if(l==='en')return[`${t} is fundamental`,`${t} affects environment`];return[`${t} är en grundläggande process`,`${t} påverkar samhället`];}
+function localizeTF(s,l){if(l==='en')return `Statement: "${s}" — True or False?`;return `Påstående: "${s}" — Sant eller falskt?`;}
+function getRubricForGrade(g){
+  return {
+    E:'E-nivå: 2–3 meningar, enkla resonemang, nämn begreppet korrekt.',
+    D:'D-nivå: enkla + inslag av utvecklade resonemang.',
+    C:'C-nivå: utvecklade resonemang, exempel + samband.',
+    B:'B-nivå: välutvecklade resonemang, jämförelser.',
+    A:'A-nivå: välutvecklade och nyanserade resonemang, värdera olika perspektiv.'
+  }[g]||'Utvecklade.';
+}
+function extractKeywords(t){const stop=new Set(['och','att','det','som','är','för','med','till','den','en','av','på','ett','har','om']);const w=t.toLowerCase().replace(/[^a-zåäö\s-]/g,' ').split(/\s+/).filter(x=>x.length>3&&!stop.has(x));const f={};w.forEach(x=>f[x]=(f[x]||0)+1);return Object.entries(f).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);}
+function negateSentence(s){if(s.toLowerCase().includes(' inte '))return s.replace(/ inte /i,' ');if(s.trim().endsWith('.'))return s.replace(/\.$/,' inte.');return s+' inte';}
+function truncate(s,n){return s.length>n?s.slice(0,n)+'…':s}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function renderExamTaking(){document.getElementById('takingMeta').textContent=`${examData.questions.length} frågor • ${examData.gradeLevel} • ${examData.difficulty}`;const c=document.getElementById('questionsContainer');c.innerHTML=examData.questions.map(q=>`<div class="question"><div class="q-head"><div><div class="q-type">${q.type==='tf'?'Sant/Falskt':q.type==='mcq'?'Flerval':'Långsvar'} • Fråga ${q.id}</div><div class="q-title">${escapeHtml(q.text)}</div>${q.type==='long'?`<div style="margin-top:8px;font-size:11px;color:var(--muted);background:var(--card);border:1px dashed var(--line);padding:7px 9px;border-radius:8px">${escapeHtml(q.rubric)}</div>`:''}</div><span class="max-grade ${q.maxGrade}">Max ${q.maxGrade}</span></div>${q.type==='long'?`<textarea class="textarea long-textarea" data-long="${q.id}" placeholder="Skriv ditt resonemang..."></textarea><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="hint"><span data-count="${q.id}">0</span> tecken</span></div>`:`<div class="options">${q.options.map(o=>`<label class="opt"><input type="radio" name="q${q.id}" value="${escapeHtml(o)}"><span style="font-size:12.5px">${escapeHtml(o)}</span></label>`).join('')}</div>`}</div>`).join('');c.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',e=>{answers[e.target.name]=e.target.value;updateProgress();trackPresence(`svarar ${e.target.name}`);}));c.querySelectorAll('textarea[data-long]').forEach(t=>t.addEventListener('input',e=>{answers['q'+e.target.dataset.long]=e.target.value;document.querySelector(`[data-count="${e.target.dataset.long}"]`).textContent=e.target.value.length;updateProgress();}));updateProgress();startTimer();}
+function updateProgress(){let a=0;examData.questions.forEach(q=>{if(answers['q'+q.id]&&String(answers['q'+q.id]).trim().length>0)a++;});document.getElementById('progressLabel').textContent=`${a} / ${examData.questions.length} besvarade`;document.getElementById('progressBar').style.width=`${(a/examData.questions.length*100).toFixed(1)}%`;}
+function startTimer(){if(timer)clearInterval(timer);startTime=Date.now();timer=setInterval(()=>{const s=Math.floor((Date.now()-startTime)/1000);document.getElementById('timerLabel').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;},1000);}
+function showSection(w){document.getElementById('examSetup').classList.toggle('hidden',w!=='setup');document.getElementById('examTaking').classList.toggle('hidden',w!=='taking');document.getElementById('examResults').classList.toggle('hidden',w!=='results');}
+document.getElementById('abandonBtn').addEventListener('click',()=>{if(timer)clearInterval(timer);showSection('setup');});
+document.getElementById('submitExamBtn').addEventListener('click',async()=>{let a=0;examData.questions.forEach(q=>{if(answers['q'+q.id]&&String(answers['q'+q.id]).trim().length>0)a++;});if(a===0){alert('Svara på minst en fråga.');return;}if(a<examData.questions.length&&!confirm(`Svarat ${a}/${examData.questions.length}. Lämna in?`))return;const b=document.getElementById('submitExamBtn');b.disabled=true;const o=b.innerHTML;b.innerHTML='<span class="spinner"></span> Rättar…';await sleep(1200);const r=gradeExam(examData,answers);renderResults(r);showSection('results');b.disabled=false;b.innerHTML=o;if(timer)clearInterval(timer);});
+const gradeValue={F:0,E:1,D:2,C:3,B:4,A:5};
+function gradeExam(exam,ans){
+  // Mildare rättning (v2.4) — mindre sträng per önskemål, fortfarande Lgr22-grundad
+  let per=[],tot=0;
+  exam.questions.forEach(q=>{
+    let e='E',fb='';
+    if(q.type==='tf'||q.type==='mcq'){
+      const g=(ans['q'+q.id]||'').toString().trim();
+      const ok=g && String(g).trim()===String(q.correct).trim();
+      if(ok){ e=q.maxGrade; fb=`✅ Korrekt!`; }
+      else if(!g){ e='F'; fb=`❌ Ej besvarad. Rätt: "${q.correct}"`; }
+      else {
+        // Mindre sträng: fel svar ger inte F (0) utan ett snällare betyg — 1 steg under max, minst E
+        // Tidigare: fel = F (0) vilket sänkte snittet hårt. Nu: fel = E/D/C ger fortfarande poäng.
+        const gv=gradeValue[q.maxGrade]??1;
+        if(gv>=5) e='C'; // A (5) fel → C (3) istället för F — fortfarande godkänt men inte nära A
+        else if(gv>=4) e='D'; // B (4) fel → D (2)
+        else if(gv>=3) e='E'; // C (3) fel → E (1) — inte F
+        else if(gv>=2) e='E'; // D (2) fel → E
+        else e='F'; // E fel → F (enda fallet där fel = F)
+        fb=`🟡 Nära — inte helt rätt. Rätt: "${q.correct}" → ger ${e} istället för ${q.maxGrade}.`;
+      }
+    } else {
+      const txt=(ans['q'+q.id]||'').trim();
+      const len=txt.length;
+      const kw=exam.keywords.filter(k=>txt.toLowerCase().includes(k.toLowerCase())).length;
+      // Mildare längdgränser: tidigare 15/60/180 → nu 8/35/100
+      if(len<8){ e='F'; fb='❌ För kort — skriv minst en mening (8+ tecken).'; }
+      else if(len<35){ e='E'; fb='🟡 Godkänt — kort men du visar grundförståelse. Utveckla gärna lite till!'; }
+      else if(len<100){
+        // Mildare nyckelordskrav: tidigare krävde 2 för C, nu 1 räcker för godkänt utvecklat
+        if(kw>=1){ e= (q.maxGrade==='A'?'C': q.maxGrade==='B'?'C': q.maxGrade); fb=`🟢 Bra — utvecklat (${kw} begrepp).`; }
+        else { e='D'; fb=`🟡 Okej längd men få ämnesord (${kw}) — lägg till 1-2 begrepp från texten för högre betyg.`; }
+      } else {
+        // Långt svar ≥100 tecken — tidigare krävde 180
+        if(kw>=2){ e=(q.maxGrade==='A'?'A': q.maxGrade==='B'?'B':'C'); fb=`🌟 Välutvecklat — bra längd och ${kw} begrepp!`; }
+        else if(kw>=1){ e=(q.maxGrade==='A'?'B': q.maxGrade==='B'?'C':'C'); fb=`🟢 Starkt — långt svar, men lägg till ett begrepp till för max.`; }
+        else { e='C'; fb=`🟢 Långt svar utan ämnesord — lägg till begrepp för A/B.`; }
+        // Bonus: om svaret är riktigt utförligt (180+) och har begrepp, uppgradera inte ner
+      }
+      if(txt.length>0) fb+=` (${len} tecken${kw?`, ${kw} begrepp`:''})`;
+    }
+    tot+=gradeValue[e]??0;
+    per.push({q,earned:e,feedback:fb});
+  });
+  const avg=tot/exam.questions.length;
+  // Mildare helhetsgränser: tidigare 4.5/3.7/2.7/1.7/0.7 → nu 4.0/3.0/2.0/1.0/0.4
+  // Det gör att ett enstaka fel inte sänker från C till D direkt.
+  let ov='F';
+  if(avg>=4.0) ov='A';
+  else if(avg>=3.0) ov='B';
+  else if(avg>=2.0) ov='C';
+  else if(avg>=1.0) ov='D';
+  else if(avg>=0.4) ov='E';
+  let s=[],ti=[];
+  per.forEach(p=>{
+    if(gradeValue[p.earned]>=gradeValue[p.q.maxGrade]) s.push(`Stark på "${p.q.text.slice(0,60)}" — ${p.earned}`);
+    if(gradeValue[p.earned]<2) ti.push(`Träna "${p.q.text.slice(0,55)}"`);
+  });
+  if(s.length===0) s.push('Bra kämpat — lite mer begrepp/utveckling ger snabbt högre betyg!');
+  if(ti.length===0) ti.push('Snyggt — du ligger bra till mot '+exam.questions[0]?.maxGrade+'!');
+  return {per,overall:ov,avg:avg.toFixed(2),strengths:s.slice(0,3),tips:ti.slice(0,3)};
+}
+function renderResults(r){document.getElementById('overallGrade').textContent=r.overall;document.getElementById('overallGrade').className='grade-'+r.overall;document.getElementById('scoreCircle').textContent=r.overall;document.getElementById('overallBadge').textContent=`Overall: ${r.overall} • ${r.avg}/5`;const d={A:'Mycket väl godkänd.',B:'Väl godkänd mot A.',C:'Väl godkänd.',D:'Godkänd mot C.',E:'Godkänd.',F:'Ej godkänd.'};document.getElementById('overallDesc').textContent=d[r.overall];document.getElementById('criteriaUsed').textContent=`Rättad mot: ${truncate(examData.criteria.replace(/\n/g,' • '),160)}`;document.getElementById('sourceEcho').textContent=examData.source;document.getElementById('perQuestionResults').innerHTML=r.per.map(p=>{const cls=gradeValue[p.earned]>=4?'good':gradeValue[p.earned]>=2?'mid':'low';return `<div class="feedback-item ${cls}"><div style="display:flex;justify-content:space-between"><div style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--muted)">Fråga ${p.q.id} <span class="max-grade ${p.q.maxGrade}">Max ${p.q.maxGrade}</span></div><b class="grade-${p.earned}">${p.earned}</b></div><div style="font-size:12.5px;font-weight:600;margin:6px 0">${escapeHtml(p.q.text)}</div><div style="font-size:11px;color:var(--muted)">${p.q.type!=='long'?`Ditt: ${escapeHtml(String(answers['q'+p.q.id]||'—'))} • Rätt: ${escapeHtml(String(p.q.correct))}`:escapeHtml(String(answers['q'+p.q.id]||'(tomt)')).slice(0,400)}</div><div style="font-size:11px;margin-top:6px">${escapeHtml(p.feedback)}</div></div>`;}).join('');document.getElementById('strengthsList').innerHTML=r.strengths.map(x=>`<li style="display:flex;gap:8px"><span style="color:#10b981">✓</span><span style="font-size:12.5px">${escapeHtml(x)}</span></li>`).join('');document.getElementById('tipsList').innerHTML=r.tips.map(x=>`<li style="display:flex;gap:8px"><span style="color:#f59e0b">→</span><span style="font-size:12.5px">${escapeHtml(x)}</span></li>`).join('');}
+document.getElementById('retakeBtn').addEventListener('click',()=>{answers={};renderExamTaking();showSection('taking');});
+document.getElementById('newExamBtn').addEventListener('click',()=>showSection('setup'));
+// Study
+const studyTextEl=document.getElementById('studyText'),dropZone=document.getElementById('dropZone'),imageUpload=document.getElementById('imageUpload'),fileName=document.getElementById('fileName'),previewImg=document.getElementById('previewImg'),analyzeBtn=document.getElementById('analyzeBtn'),analyzeStatus=document.getElementById('analyzeStatus');
+document.querySelectorAll('[data-study-example]').forEach(b=>b.addEventListener('click',()=>{const m={cell:`Cellandning sker i mitokondrien. Glukos + syre → koldioxid + vatten + ATP.`,industrial:`Industriella revolutionen började i Storbritannien. Ångmaskinen, urbanisering.`,grammar:`Tysk grammatik: der/die/das, fyra kasus.`};studyTextEl.value=m[b.dataset.studyExample];}));
+dropZone.addEventListener('click',()=>imageUpload.click());
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+imageUpload.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+function handleFile(f){if(!f.type.startsWith('image/'))return;fileName.textContent=`📎 ${f.name}`;studyContext.hasImage=true;const r=new FileReader();r.onload=e=>{previewImg.src=e.target.result;previewImg.style.display='block';};r.readAsDataURL(f);}
+// — Hjälpare för studie-AI: förklaring + 2-3 quiz-frågor på det du ber om —
+function cleanTopic(q){
+  return q.replace(/^(lär mig|förklara|vad är|vad betyder|hur funkar|teach me|explain)\s*/i,'').replace(/[?!.]+$/,'').trim().slice(0,80) || q.slice(0,60);
+}
+// ── 10x smartare: matte-detektering + varierade tal ──
+function isMathTopic(t){
+  const s=(t||"").toLowerCase();
+  return /addition|subtraktion|multiplikation|division|matte|räkn|plus|minus|gånger|delat|procent|bråk|ekvation/.test(s) || /\d+\s*[\+\-\*×\/÷]\s*\d+/.test(s) || /^\s*addition\s*$/i.test(s) || s.includes("1+1");
+}
+function getMathOp(t){
+  const s=(t||"").toLowerCase();
+  if(/addition|plus|\+|addera|summa/.test(s)) return "+";
+  if(/subtraktion|minus|−|–|—|ta bort|differens/.test(s)) return "-";
+  if(/multiplikation|gånger|\*|×/.test(s)) return "×";
+  if(/division|delat|\/|÷/.test(s)) return "÷";
+  // default för generell "matte"/"räkna" → addition
+  return "+";
+}
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function genMathProblem(op, grade, usedSet){
+  // varierade tal beroende på betyg, undvik upprepning via usedSet
+  let a,b,ans,txt,attempts=0;
+  do{
+    if(op==="+"){
+      if(grade==='E'){ a=randInt(1,10); b=randInt(1,10); }
+      else if(grade==='D'){ a=randInt(5,20); b=randInt(5,20); }
+      else if(grade==='C'){ a=randInt(10,50); b=randInt(10,50); }
+      else if(grade==='B'){ a=randInt(20,100); b=randInt(10,80); }
+      else { a=randInt(50,200); b=randInt(30,150); }
+      ans=a+b; txt=`${a} + ${b}`;
+    } else if(op==="-"){
+      if(grade==='E'){ a=randInt(5,15); b=randInt(1,Math.min(9,a-1)); }
+      else if(grade==='C'){ a=randInt(20,80); b=randInt(10,Math.min(50,a-1)); }
+      else { a=randInt(30,150); b=randInt(10,Math.min(100,a-1)); }
+      ans=a-b; txt=`${a} − ${b}`;
+    } else if(op==="×"){
+      if(grade==='E'){ a=randInt(2,5); b=randInt(2,5); }
+      else if(grade==='C'){ a=randInt(3,12); b=randInt(3,12); }
+      else { a=randInt(6,15); b=randInt(6,15); }
+      ans=a*b; txt=`${a} × ${b}`;
+    } else {
+      // division — se till att det blir jämnt tal
+      b= grade==='E'? randInt(2,5) : grade==='C'? randInt(3,10) : randInt(4,12);
+      ans= grade==='E'? randInt(2,6) : randInt(3,12);
+      a=b*ans; txt=`${a} ÷ ${b}`;
+    }
+    attempts++;
+  } while(usedSet && usedSet.has(txt) && attempts<30);
+  if(usedSet) usedSet.add(txt);
+  return {a,b,ans,txt,op,correct:String(ans)};
+}
+function explainTopicHTML(q){
+  const raw=q.toLowerCase().trim();
+  const topic=cleanTopic(q);
+  // 1+1 specifik
+  if(raw.includes('1+1') || raw.match(/\b1\s*\+\s*1\b/)){
+    return `<strong style="font-size:15px">1 + 1 = 2 — så funkar addition</strong><br>
+    <div style="margin-top:8px;display:grid;gap:6px;font-size:12.5px;line-height:1.6">
+      <div>🔹 <strong>Vad händer?</strong> Du lägger ihop två mängder. 1 äpple + 1 äpple = 2 äpplen.</div>
+      <div>🔹 <strong>Tallinje:</strong> Börja på 1 → ta 1 steg fram → du står på 2.</div>
+      <div>🔹 <strong>Varför addition?</strong> Grunden för all matte — subtraktion, multiplikation osv bygger på detta.</div>
+      <div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:4px">💡 <strong>Mini-regel:</strong> <span class="mono">a + b</span> betyder “ta a och lägg till b”. Testa: 2+1=3, 1+2=3.</div>
+    </div>`;
+  }
+  if(raw.match(/\b2\s*\+\s*2\b/) || raw.includes('2+2')){
+    return `<strong>2 + 2 = 4</strong> — samma princip som 1+1.<br>2 äpplen + 2 äpplen = 4. Tallinje: 2 → +2 steg → 4. <div style="margin-top:6px;font-size:11px;color:var(--muted)">Prova: 5+7=12, 8+2=10 — samma steg.</div>`;
+  }
+  // ── 10x smartare: generell matte (addition, subtraktion, etc.) med varierade exempel 5+7, 8+2 osv ──
+  if(isMathTopic(raw)){
+    const op=getMathOp(raw);
+    const opName=op==="+"?"Addition":op==="-"?"Subtraktion":op==="×"?"Multiplikation":"Division";
+    const used=new Set();
+    const exA=genMathProblem(op,'E',used), exB=genMathProblem(op,'C',used), exC=genMathProblem(op,'B',used);
+    const sym=op;
+    const prettyOp=escapeHtml(topic||opName.toLowerCase());
+    if(op==="+"){
+      return `<strong style="font-size:15px">${opName} — så räknar du</strong>
+      <div style="margin-top:8px;display:grid;gap:7px;font-size:12.5px;line-height:1.65">
+        <div>🔹 <strong>Regel:</strong> <span class="mono">a + b</span> = lägg ihop. T.ex. <strong>${exA.txt} = ${exA.ans}</strong> → ${exA.a} äpplen + ${exA.b} till = ${exA.ans}.</div>
+        <div>🔹 <strong>Exempel 1:</strong> <span class="mono">${exA.txt} = ${exA.ans}</span> — tallinje: börja på ${exA.a}, gå ${exA.b} steg fram → ${exA.ans}.</div>
+        <div>🔹 <strong>Exempel 2:</strong> <span class="mono">${exB.txt} = ${exB.ans}</span> — tänk tiotal: ${exB.a}+${exB.b} = ${exB.ans}.</div>
+        <div>🔹 <strong>Exempel 3 (lite svårare):</strong> <span class="mono">${exC.txt} = ${exC.ans}</span> — dela upp: ${exC.a}+${exC.b} = ${exC.ans}.</div>
+        <div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px">💡 <strong>Strategi:</strong> Dela i tiotal — 5+7 = 5+5+2 = 10+2=12. Öva på 8+2=10, 12+8=20. Fråga “ge mig 5 till” för fler.</div>
+      </div>`;
+    } else if(op==="-"){
+      return `<strong>${opName} — så räknar du</strong><div style="margin-top:8px;display:grid;gap:6px;font-size:12.5px;line-height:1.6"><div>🔹 <span class="mono">${exA.txt} = ${exA.ans}</span> — ta bort: ${exA.a} − ${exA.b} = ${exA.ans}</div><div>🔹 Exempel: ${exB.txt}=${exB.ans}, ${exC.txt}=${exC.ans}</div><div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px">Tallinje bakåt: börja på ${exA.a}, gå ${exA.b} steg bak → ${exA.ans}</div></div>`;
+    } else if(op==="×"){
+      return `<strong>${opName} — upprepad addition</strong><div style="margin-top:8px;display:grid;gap:6px;font-size:12.5px"><div><span class="mono">${exA.txt} = ${exA.ans}</span> → ${exA.a}·${exA.b} = ${exA.ans}</div><div>Exempel: ${exB.txt}=${exB.ans}, ${exC.txt}=${exC.ans}</div></div>`;
+    } else {
+      return `<strong>${opName}</strong><div style="margin-top:8px;font-size:12.5px"><div><span class="mono">${exA.txt} = ${exA.ans}</span> — dela lika</div><div>Ex: ${exB.txt}=${exB.ans}, ${exC.txt}=${exC.ans}</div></div>`;
+    }
+  }
+  if(raw.includes('fotosyntes')){
+    return `<strong>Fotosyntes — så funkar det</strong><br>🌱 Växter tar <span class="mono">CO₂ + vatten + solljus → glukos + syrgas</span>.<br>• Var: i kloroplaster<br>• Varför viktigt: ger energi + syrgas vi andas.<br>Formel: 6CO₂ + 6H₂O + ljus → C₆H₁₂O₆ + 6O₂<br><div style="margin-top:8px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px">Jämför: fotosyntes bygger upp, cellandning bryter ner — båda om energi.</div>`;
+  }
+  if(raw.includes('demokrati')){
+    return `<strong>Demokrati — folkstyre</strong><br>🏛️ Fria val, yttrandefrihet, likhet inför lagen, majoritetsbeslut med minoritetsskydd.<br>Motsats: diktatur. Exempel: Sverige — riksdagsval vart 4:e år.<br><div style="margin-top:8px;font-size:11px;color:var(--muted)">Källkritik: vem bestämmer? Jämför direkt vs representativ demokrati.</div>`;
+  }
+  if(raw.includes('cellandning')){
+    return `<strong>Cellandning — motsatsen till fotosyntes</strong><br>🧬 I mitokondrien: Glukos + syre → koldioxid + vatten + <strong>ATP (energi)</strong>.<br>Utan cellandning — ingen energi till kroppen.`;
+  }
+  // Generisk men utförlig — 10x smartare fallback
+  const pretty=escapeHtml(topic);
+  const kws=extractKeywords(topic).slice(0,3).join(', ') || pretty;
+  return `<strong>Du vill lära dig: “${pretty}” — utförlig genomgång</strong>
+    <div style="margin-top:8px;display:grid;gap:6px;font-size:12.5px;line-height:1.65">
+      <div>🔹 <strong>Vad är det?</strong> ${pretty} — kärnan är <em>${escapeHtml(kws)}</em>. Tänk definition + sammanhang.</div>
+      <div>🔹 <strong>Varför viktigt?</strong> För att förstå helheten, kunna förklara för andra och använda i nya exempel.</div>
+      <div>🔹 <strong>Hur funkar det?</strong> Steg 1: grundbegrepp → Steg 2: samband → Steg 3: exempel i vardagen.</div>
+      <div>🔹 <strong>Exempel:</strong> Ta ${pretty} och koppla till något du känner igen — då fastnar det.</div>
+      <div style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px">✦ Vill du ha <strong>10x djupare</strong>? Fråga “förklara steg för steg”, “ge 3 exempel”, eller “visa svår nivå” — jag anpassar direkt. Med Gemini-nyckel ovan blir svaren ännu utförligare.</div>
+    </div>`;
+}
+function quizForTopic(q, baseSentences, kws, gradeHint){
+  const raw=q.toLowerCase();
+  const gh=(gradeHint||'C').toUpperCase();
+  // 1+1 special (behåll för exakthet) — betygstyrd per Lgr22: E=klick, C=blandat, A=skriv
+  if(raw.includes('1+1') || raw.match(/\b1\s*\+\s*1\b/)){
+    const optsA=['2','1','3','11']; const shA=shuffle(optsA); const corrA=shA.indexOf('2'); const optsB=['2 kronor','1 krona','3 kronor','0 kronor']; const shB=shuffle(optsB); const corrB=shB.indexOf('2 kronor');
+    return [
+      {type:'mcq', text:'Vad är 1 + 1? (skriv eller välj)', options:shA, correctIndex:corrA},
+      {type:'mcq', text:'Du har 1 krona, får 1 krona till. Hur mycket har du?', options:shB, correctIndex:corrB},
+      {type:'tf', text:'1 + 1 är addition.', options:['Sant','Falskt'], correctIndex:0}
+    ].slice(0,3);
+  }
+  if(raw.includes('2+2')){
+    const opts=['4','2','3','22']; const sh=shuffle(opts); 
+    return [
+      {type:'mcq', text:'Vad är 2 + 2?', options:sh, correctIndex:sh.indexOf('4')},
+      {type:'tf', text:'2 + 2 är samma som 2 · 2.', options:['Sant','Falskt'], correctIndex:0}
+    ];
+  }
+  // ── 10x smartare matte-quiz: varierade tal 5+7, 8+2 osv — betygstyrd Lgr22 ──
+  if(isMathTopic(raw)){
+    const op=getMathOp(raw);
+    const used=new Set();
+    // välj nivå från gradeHint (E/C/A) eller frågetexten
+    let level = gh;
+    if(raw.includes("a-nivå")||raw.includes("svår")||gh==='A') level='A';
+    else if(raw.includes("c-nivå")||gh==='C') level='C';
+    else if(gh==='E') level='E';
+    else level = raw.includes("svår") ? 'C' : 'E';
+    const p1=genMathProblem(op, level, used);
+    const p2=genMathProblem(op, level==='E'?'C':level==='C'?'B':'A', used);
+    const p3=genMathProblem(op, level==='E'?'C':'B', used);
+    const mkOpts=(corr)=>{
+      const c=String(corr);
+      const d1=String(corr+1), d2=String(corr-1), d3=String(corr+2);
+      const opts=[c, d1, d2.startsWith('-')? String(Number(c)+3):d2, d3];
+      const sh=shuffle(opts);
+      return {opts:sh, idx:sh.indexOf(c)};
+    };
+    const o1=mkOpts(p1.ans), o2=mkOpts(p2.ans);
+    // Betygstyrd fördelning: E=100% klick, C=2 klick+1 skriv, A=100% skriv (svåraste)
+    if(gh==='E'){
+      const pE3=genMathProblem(op, 'E', used);
+      const o3=mkOpts(pE3.ans);
+      return [
+        {type:'mcq', text:`Vad är ${p1.txt}?`, options:o1.opts, correctIndex:o1.idx},
+        {type:'tf', text:`${p2.txt} = ${p2.ans} — Sant eller falskt?`, options:['Sant','Falskt'], correctIndex:0},
+        {type:'mcq', text:`Räkna: ${pE3.txt} = ?`, options:o3.opts, correctIndex:o3.idx}
+      ];
+    }
+    if(gh==='A'){
+      const pa1=genMathProblem(op, 'A', used), pa2=genMathProblem(op, 'A', used), pa3=genMathProblem(op, 'A', used);
+      return [
+        {type:'long', text:`Analysera och visa hur du räknar ${pa1.txt} — motivera varje steg och värdera alternativa vägar.`, rubric:'A: välutvecklat & nyanserat resonemang.', options:[], correctIndex:-1},
+        {type:'long', text:`Problematisera: ${pa2.txt} — hur löser du det effektivast? Jämför två metoder.`, rubric:'A: jämför perspektiv, nyansera.', options:[], correctIndex:-1},
+        {type:'long', text:`Värdera: ${pa3.txt} i ett större sammanhang — t.ex. budget/textuppgift. Visa alla steg.`, rubric:'A: generalisera och värdera.', options:[], correctIndex:-1}
+      ];
+    }
+    // C och övriga: 2 klick + 1 skriv (svårare)
+    return [
+      {type:'mcq', text:`Vad är ${p1.txt}?`, options:o1.opts, correctIndex:o1.idx},
+      {type:'tf', text:`${p2.txt} = ${p2.ans} — Sant eller falskt?`, options:['Sant','Falskt'], correctIndex:0},
+      {type:'long', text:`Visa och skriv hur du räknar ${p3.txt} steg för steg. Förklara varje steg med ord.`, rubric:'C: utvecklat resonemang, samband.', options:[], correctIndex:-1}
+    ];
+  }
+  // Generiskt: 2-3 frågor baserat på keywords + sentences
+  const topic=cleanTopic(q);
+  const kw=kws[0]||topic.split(/\s+/)[0]||'ämnet';
+  const kw2=kws[1]||kw;
+  const s0=baseSentences[0]||`Påstående om ${kw}`;
+  let qs=[];
+  // Betygstyrd generering per Lgr22: E=grundläggande klick, C=god + skriv, A=mycket god endast skriv
+  if(gh==='E'){
+    const correct1=`Korrekt enligt genomgången: ${truncate(s0,60)}`;
+    const opts1=shuffle([correct1,`Motsatsen till ${kw}`,`Har ingen koppling`,`Bara ett stavfel`]);
+    qs.push({type:'mcq', text:`Vad betyder "${kw}" i detta sammanhang? (E — enkel återgivning)`, options:opts1, correctIndex:opts1.indexOf(correct1)});
+    if(kws.length>=2){
+      qs.push({type:'tf', text:`"${kw2} är irrelevant för "${kw}". — Sant eller falskt?`, options:['Sant','Falskt'], correctIndex:1});
+    }
+    if(qs.length<3){
+      const corr2=`${kw}: enkelt exempel från texten`;
+      const o2=shuffle([corr2,`Felaktig koppling`,`Ingen relevans`,`Stavfel`]);
+      qs.push({type:'mcq', text:`Vilket exempel hör till "${topic}"?`, options:o2, correctIndex:o2.indexOf(corr2)});
+    }
+    return qs.slice(0,3);
+  }
+  if(gh==='A'){
+    // A: endast skriv — svåraste, analys/värdering/nyansering
+    qs.push({type:'long', text:`Analysera nyanserat: Vad betyder "${topic}" och varför är "${kw}" centralt? Värdera olika perspektiv. (A)`, rubric:'A: välutvecklat & nyanserat, flera perspektiv.', options:[], correctIndex:-1});
+    qs.push({type:'long', text:`Värdera och problematisera "${kw2||kw}" i förhållande till "${topic}" — vilka styrkor/svagheter finns? (A)`, rubric:'A: värdera, problematisera, nyansera.', options:[], correctIndex:-1});
+    if(kws.length>=3) qs.push({type:'long', text:`Generalisera: Hur kan "${kw}" tillämpas i ett nytt sammanhang utanför texten? Motivera. (A)`, rubric:'A: generalisera och koppla till nytt sammanhang.', options:[], correctIndex:-1});
+    return qs.slice(0,3);
+  }
+  // C (default) och B/D: blandat — några skriv + svårare klick
+  const correct1=`Korrekt enligt genomgången: ${truncate(s0,60)}`;
+  const opts1=shuffle([correct1,`Motsatsen till ${kw}`,`Har ingen koppling`,`Bara ett stavfel`]);
+  qs.push({type:'mcq', text:`Vad betyder "${kw}" i detta sammanhang?`, options:opts1, correctIndex:opts1.indexOf(correct1)});
+  if(kws.length>=2){
+    qs.push({type:'tf', text:`"${kw2} är irrelevant för "${kw}". — Sant eller falskt?`, options:['Sant','Falskt'], correctIndex:1});
+  }
+  if(qs.length<3){
+    qs.push({type:'long', text:`Förklara och ge exempel: Hur hänger "${topic}" ihop med "${kw}"? Visa samband. (C)`, rubric:'C: utvecklat resonemang, samband och exempel.', options:[], correctIndex:-1});
+  }
+  return qs.slice(0,3);
+}
+analyzeBtn.addEventListener('click',async()=>{
+  const t=studyTextEl.value.trim();
+  if(!t&&!studyContext.hasImage){alert('Klistra in text först.');return;}
+  if(!t&&studyContext.hasImage)studyTextEl.value="Anteckningar från bild: Fotosyntes — ljus + CO2 + H2O → glukos + O2.";
+  analyzeBtn.disabled=true;analyzeBtn.innerHTML='<span class="spinner"></span> Analyserar…';
+  analyzeStatus.classList.remove('hidden');
+  analyzeStatus.textContent= getGeminiKey() ? '⏳ Gemini analyserar utförligt...' : '⏳ Bygger studiepaket…';
+  await sleep(400);
+  await buildStudyAnalysis();
+  analyzeBtn.disabled=false;analyzeBtn.innerHTML='Analysera';
+  analyzeStatus.className='notice success';analyzeStatus.textContent='✅ Klar!';
+});
+async function buildStudyAnalysis(){
+  const t=studyTextEl.value.trim();studyContext.text=t;
+  const s=t.split(/(?<=[.!?])\s+/).filter(s=>s.length>12);
+  const k=extractKeywords(t).slice(0,6);
+  let p=s.length>=4 ? s.slice(0,5) : [t.slice(0,140), `Nyckelbegrepp: ${k.join(', ')||'—'}`];
+  if(studyContext.hasImage) p.push(`Bildanalys: ${k.slice(0,3).join(', ')||'bildens begrepp'}`);
+  // Om Gemini finns — hämta utförlig sammanfattning därifrån
+  if(getGeminiKey()){
+    try{
+      analyzeStatus.textContent='⏳ Gemini sammanfattar utförligt...';
+      const gem=await geminiExplain(`Sammanfatta och förklara följande material utförligt på svenska, pedagogiskt, med 3-5 nyckelpunkter. Material: """${t.slice(0,3000)}"""`, t);
+      // Försök extrahera punkter från Gemini-svaret till summary-rutan
+      const plain=gem.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+      const pts=plain.split(/(?<=[.!?])\s+/).filter(x=>x.length>20).slice(0,5);
+      if(pts.length>=2) p=pts;
+      // visa Gemini-svaret i chatten också
+      addChatMsg('bot', `<strong>Gemini — utförlig analys:</strong><br>${gem}`);
+    }catch(e){
+      console.warn("Gemini analys fallback:", e);
+      // behåll lokal p
+    }
+  }
+  let mqRaw=quizForTopic(t, s, k, (typeof targetGrade!=='undefined'?targetGrade:'C'));
+  let mq=mqRaw.map(q=>{
+    let ci=q.correctIndex;
+    if(ci===undefined || ci<0) ci=0;
+    return {type:q.type, text:q.text, options:q.options, correctIndex:ci, rubric:q.rubric||''};
+  });
+  studyContext.summary=p;studyContext.microQuiz=mq;
+  renderStudyResults();
+  if(!getGeminiKey()){
+    addChatMsg('bot',`Klart! Jag har brutit ner <strong>${escapeHtml(cleanTopic(t).slice(0,60))}</strong> — kolla <em>Sammanfattning</em> + <em>Micro-Quiz</em> (2–3 frågor) här bredvid. Fråga i chatten så förklarar jag mer, t.ex. “Lär mig 1+1”. <span style="font-size:11px;color:var(--muted)"><br>Lägg till Gemini-nyckel ovan för utförliga svar på alla ämnen.</span>`);
+  } else {
+    addChatMsg('bot',`✅ Sammanfattning + <strong>mini-quiz (${mq.length} frågor)</strong> klara till höger. Ställ följdfrågor i chatten — Gemini svarar utförligt på allt.`);
+  }
+}
+function renderStudyResults(){
+  const n=studyContext.microQuiz.length||0;
+  document.getElementById('summaryBox').innerHTML=`<ul class="summary-list">${studyContext.summary.map((p,i)=>`<li><span class="num">${i+1}</span><span style="font-size:12.5px">${escapeHtml(p)}</span></li>`).join('')}</ul>`;
+  const mq=document.getElementById('microQuizBox');
+  mq.innerHTML=studyContext.microQuiz.map((q,idx)=>{
+    if(q.type==='long'){
+      return `<div style="margin-bottom:12px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)"><div style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center"><span>Fråga ${idx+1} • Skrivfråga</span><span style="background:#22c55e;color:#04120a;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:800">✍️ Skriv själv</span></div><div style="font-size:12.5px;font-weight:600;margin:6px 0">${escapeHtml(q.text)}</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">${escapeHtml(q.rubric||'Skriv 2–4 meningar med egna ord.')}</div><textarea id="mqLong${idx}" rows="3" placeholder="Skriv ditt svar här..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12.5px;resize:vertical"></textarea><button class="btn btn-primary btn-sm" style="margin-top:8px;width:100%" onclick="checkMicroLong(${idx})">Spara svar</button><div id="mqFeedback${idx}" style="margin-top:8px;font-size:11px;font-weight:600"></div></div>`;
+    }
+    return `<div style="margin-bottom:12px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)"><div style="font-family:'Fragment Mono',monospace;font-size:10px;color:var(--muted)">Fråga ${idx+1} • ${q.type==='tf'?'Sant/Falskt':'Flerval'}</div><div style="font-size:12.5px;font-weight:600;margin:6px 0">${escapeHtml(q.text)}</div><div style="display:grid;gap:6px">${q.options.map((o,oi)=>`<button class="quiz-opt" data-q="${idx}" data-o="${oi}" onclick="checkMicro(${idx},${oi})">${escapeHtml(o)}</button>`).join('')}</div><div id="mqFeedback${idx}" style="margin-top:8px;font-size:11px;font-weight:600"></div></div>`;
+  }).join('')+`<button onclick="resetMicro()" class="btn btn-ghost btn-sm" style="width:100%">Nollställ</button>`;
+  document.getElementById('quizProgress').textContent=`0/${n}`;
+  document.getElementById('copySummary').onclick=()=>navigator.clipboard.writeText(studyContext.summary.join('\n')).then(()=>alert('Kopierad'));
+}
+window.checkMicro=function(qi,oi){
+  const q=studyContext.microQuiz[qi];
+  const btns=document.querySelectorAll(`[data-q="${qi}"]`);
+  btns.forEach(b=>{b.classList.remove('correct','wrong');b.disabled=true;});
+  const ch=document.querySelector(`[data-q="${qi}"][data-o="${oi}"]`);
+  let ok=false;
+  // Ingen ✅/❌ visas — rättas via correctIndex (så man kan skriva själv utan att svaret avslöjas)
+  ok = oi===q.correctIndex;
+  if(ok){ch.classList.add('correct');document.getElementById('mqFeedback'+qi).innerHTML='<span style="color:#6ee7b7">✅ Rätt!</span>';}
+  else {ch.classList.add('wrong');document.getElementById('mqFeedback'+qi).innerHTML='<span style="color:#fca5a5">❌ Fel</span>';const c=btns[q.correctIndex]; if(c) c.classList.add('correct');}
+  let d=0;studyContext.microQuiz.forEach((_,i)=>{if(document.getElementById('mqFeedback'+i).textContent.trim()) d++;});
+  document.getElementById('quizProgress').textContent=`${d}/${studyContext.microQuiz.length}`;
+  if(d===studyContext.microQuiz.length) setTimeout(()=>addChatMsg('bot', d===studyContext.microQuiz.length && [...document.querySelectorAll('[id^=mqFeedback]')].every(e=>e.textContent.includes('Rätt')) ? `🌟 Snyggt! Alla ${d}/${d} rätt — du har koll på detta!` : `Bra jobbat! ${d}/${studyContext.microQuiz.length} klara. Kör “Nollställ” för att öva igen.`),300);
+}
+window.checkMicroLong=function(qi){
+  const q=studyContext.microQuiz[qi];
+  const ta=document.getElementById('mqLong'+qi);
+  const fb=document.getElementById('mqFeedback'+qi);
+  if(!ta||!fb) return;
+  const txt=ta.value.trim();
+  if(txt.length<10){ fb.innerHTML='<span style="color:#fca5a5">Skriv lite mer — minst 10 tecken.</span>'; return; }
+  if(txt.length<30){ fb.innerHTML='<span style="color:#fde68a">🟡 Bra början — utveckla med 1–2 meningar till för högre nivå!</span> <span style="color:var(--muted)">('+txt.length+' tecken)</span>'; }
+  else { fb.innerHTML='<span style="color:#6ee7b7">✅ Sparat! ('+txt.length+' tecken) — snyggt skrivet. Jämför med sammanfattningen till vänster.</span>'; }
+  ta.style.borderColor='var(--line)'; ta.disabled=true;
+  let d=0; studyContext.microQuiz.forEach((_,i)=>{ const e=document.getElementById('mqFeedback'+i); if(e && e.textContent.trim()) d++; });
+  document.getElementById('quizProgress').textContent=`${d}/${studyContext.microQuiz.length}`;
+}
+window.startPendingQuiz=function(){
+  if(!studyContext.pendingQuiz){ addChatMsg('bot','Inget quiz förberett — fråga först om ett ämne, t.ex. “lär mig addition”'); return; }
+  const pq = studyContext.pendingQuiz;
+  studyContext.microQuiz = pq.quiz;
+  renderStudyResults();
+  addChatMsg('bot',`✅ Quiz om “${escapeHtml(pq.topic)}” är redo till höger — ${pq.quiz.length} frågor! Svara där så får du direkt feedback.`);
+  studyContext.pendingQuiz = null;
+}
+window.askMoreExamples=function(topic){
+  if(topic) botReply('ge fler exempel om '+topic);
+}
+window.resetMicro=function(){renderStudyResults();}
+const chatLog=document.getElementById('chatLog'),chatInput=document.getElementById('chatInput'),chatSend=document.getElementById('chatSend');
+function addChatMsg(r,h){const d=document.createElement('div');d.className='bubble '+r;d.innerHTML=h;chatLog.appendChild(d);chatLog.scrollTop=chatLog.scrollHeight;}
+// NY: studie-AI — konversationell med minne + förklarar först, frågar sedan om quiz
+async function botReply(t){
+  const l=t.toLowerCase().trim();
+  const has=studyContext.text.length>20;
+  // --- Minne: spara elevens fråga ---
+  const cleanQ = t.slice(0,300);
+  conversationHistory.push({role:'user', text: cleanQ});
+  studyContext.history.push({role:'user', text: cleanQ});
+  if(conversationHistory.length>20) conversationHistory.shift();
+  if(studyContext.history.length>20) studyContext.history.shift();
+  // Hantera "ja" på quiz-förfrågan direkt
+  if(studyContext.pendingQuiz && /^(ja|japp|yes|gärna|kör|starta|quiz|testa|absolut|gärna quiz)/i.test(l)){
+    startPendingQuiz();
+    conversationHistory.push({role:'bot', text: `Startade quiz om ${studyContext.pendingQuiz.topic}`});
+    studyContext.history.push({role:'bot', text: `Startade quiz om ${studyContext.pendingQuiz.topic}`});
+    return;
+  }
+  // försök Gemini först om nyckel finns
+  const useGemini=!!getGeminiKey();
+  if(useGemini){
+    // visa tänker-indikator
+    const thinkId="think-"+Date.now();
+    const thinkEl=document.createElement('div');
+    thinkEl.id=thinkId; thinkEl.className='bubble bot'; thinkEl.innerHTML='<span class="spinner" style="display:inline-block;vertical-align:middle;margin-right:8px"></span> Gemini tänker utförligt...';
+    chatLog.appendChild(thinkEl); chatLog.scrollTop=chatLog.scrollHeight;
+    try{
+      const gemText=await geminiExplain(t, studyContext.text, conversationHistory);
+      thinkEl.remove();
+      // Spara i minne
+      const topicNow = cleanTopic(t);
+      studyContext.lastTopic = topicNow;
+      conversationHistory.push({role:'bot', text: `Förklarade ${topicNow} utförligt`});
+      studyContext.history.push({role:'bot', text: gemText.replace(/<[^>]+>/g,' ').slice(0,250)});
+      // Förbered quiz MEN fråga först — enligt önskemål: förklara först, fråga sedan
+      const kws = extractKeywords(t).slice(0,4);
+      const baseSents = (studyContext.text ? studyContext.text.split(/(?<=[.!?])\s+/).filter(s=>s.length>12) : [t]);
+      const quizRaw = quizForTopic(t, baseSents.length?baseSents:[gemText.replace(/<[^>]+>/g,' ')], kws.length?kws:extractKeywords(topicNow).slice(0,3), (typeof targetGrade!=='undefined'?targetGrade:'C'));
+      const quiz = quizRaw.map(q=>{ let ci=q.correctIndex; if(ci===undefined||ci<0) ci=q.type==='long'?-1:0; return {type:q.type, text:q.text, options:q.options, correctIndex:ci, rubric:q.rubric||''}; });
+      // Spara som pending — renderas först när eleven säger ja
+      studyContext.pendingQuiz = {topic: topicNow, quiz: quiz, kws:kws, gemText: gemText};
+      if(!studyContext.summary.length){
+        const plain=gemText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+        const sents=plain.split(/(?<=[.!?])\s+/).filter(s=>s.length>20).slice(0,3);
+        studyContext.summary = sents.length ? sents : [topicNow, `Nyckel: ${kws.join(', ')||'grundbegrepp'}`, `Exempel kopplat till ${topicNow}`];
+        document.getElementById('summaryBox').innerHTML=`<ul class="summary-list">${studyContext.summary.map((p,i)=>`<li><span class="num">${i+1}</span><span style="font-size:12.5px">${escapeHtml(p)}</span></li>`).join('')}</ul>`;
+      }
+      // Visa förklaring + fråga om quiz
+      const n=quiz.length;
+      addChatMsg('bot', gemText + `<div style="margin-top:14px;padding:12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px">
+        <div style="font-size:13px;font-weight:700">Vill du testa dig med ett mini-quiz om “${escapeHtml(topicNow)}”?</div>
+        <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">${n} frågor • anpassat till din nivå • du skriver själv, svar visas efteråt</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="startPendingQuiz()">✅ Ja, kör quiz!</button>
+          <button class="btn btn-ghost btn-sm" onclick="addChatMsg('bot','Kör hårt! Fråga vidare om du vill ha fler exempel — jag minns vad vi pratat om.')">Ge fler exempel</button>
+          <button class="btn btn-ghost btn-sm" onclick="addChatMsg('bot','Inga problem — fråga vidare när du vill!')">Nej tack</button>
+        </div>
+      </div>`);
+      trackPresence('Gemini-förklaring: '+topicNow.slice(0,40));
+      return;
+    }catch(e){
+      thinkEl.remove();
+      console.warn("Gemini botReply föll tillbaka till lokal:", e);
+      const warn=document.createElement('div'); warn.className='bubble bot'; warn.style.borderColor='#f59e0b'; warn.innerHTML=`⚠️ Gemini fel: ${escapeHtml(e.message.slice(0,180))}<br><span style="font-size:11px;color:var(--muted)">Visar lokalt svar istället. Kontrollera nyckeln i rutan ovan.</span>`; chatLog.appendChild(warn);
+      // fortsätt till lokal fallback nedan
+    }
+  }
+  // ── lokal fallback (som tidigare) ──
+  if(l.includes('sammanfatta')){
+    if(has) { addChatMsg('bot', `📝 <strong>Sammanfattning (från din text):</strong><br>1) ${escapeHtml(studyContext.summary[0]||'')}<br>2) ${escapeHtml(studyContext.summary[1]||'')}<br>3) ${escapeHtml(studyContext.summary[2]||'')}`); return; }
+    addChatMsg('bot', explainTopicHTML(t) + `<div style="margin-top:10px;padding:8px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font-size:11px">Tips: klistra in din text och tryck “Analysera” för en riktig sammanfattning — eller fråga “Lär mig 1+1” så kör vi direkt. Lägg till Gemini-nyckel ovan för utförliga svar på alla frågor.</div>`);
+    return;
+  }
+  if(l.includes('a-svar') || l.includes('visa a')){
+    const k=has?extractKeywords(studyContext.text).slice(0,3).join(', '):'ämnet';
+    addChatMsg('bot', `<strong>Så ser svar på olika nivåer ut:</strong><br><span style="color:#10b981">E:</span> nämner <em>${escapeHtml(k)}</em> enkelt, 2–3 meningar.<br><span style="color:#818cf8">C:</span> förklarar samband + exempel.<br><span style="color:#f43f5e">A:</span> nyanserat, jämför perspektiv och värderar.`);
+    return;
+  }
+  const topicNowLocal = cleanTopic(t);
+  // Minne: om vi nyss pratade om annat ämne, var konversationell
+  let prefixMemory = "";
+  if(studyContext.lastTopic && studyContext.lastTopic.toLowerCase()!==topicNowLocal.toLowerCase() && studyContext.history.length>1){
+    prefixMemory = `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;padding:6px 8px;background:var(--bg);border-radius:8px">💬 Tidigare pratade vi om <strong>${escapeHtml(studyContext.lastTopic)}</strong> — nu kollar vi <strong>${escapeHtml(topicNowLocal)}</strong> istället. Jag minns hela vår konversation!</div>`;
+  }
+  const explanationRaw = explainTopicHTML(t);
+  const explanation = prefixMemory + explanationRaw;
+  studyContext.lastTopic = topicNowLocal;
+  conversationHistory.push({role:'bot', text: `Förklarade ${topicNowLocal}`});
+  studyContext.history.push({role:'bot', text: explanationRaw.replace(/<[^>]+>/g,' ').slice(0,250)});
+  const kws = extractKeywords(t).slice(0,4);
+  const baseSents = (studyContext.text ? studyContext.text.split(/(?<=[.!?])\s+/).filter(s=>s.length>12) : [t]);
+  const quizRaw = quizForTopic(t, baseSents.length?baseSents:[explanationRaw.replace(/<[^>]+>/g,' ')], kws.length?kws:extractKeywords(topicNowLocal).slice(0,3), (typeof targetGrade!=='undefined'?targetGrade:'C'));
+  const quiz = quizRaw.map(q=>{ let ci=q.correctIndex; if(ci===undefined||ci<0) ci=q.type==='long'?-1:0; return {type:q.type, text:q.text, options:q.options, correctIndex:ci, rubric:q.rubric||''}; });
+  studyContext.pendingQuiz = {topic: topicNowLocal, quiz: quiz, kws:kws, explanation: explanationRaw};
+  studyContext.text = studyContext.text || t;
+  if(!studyContext.summary.length){
+    studyContext.summary = [topicNowLocal, `Nyckel: ${kws.join(', ')||'grundbegrepp'}`, `Exempel kopplat till ${topicNowLocal}`];
+    document.getElementById('summaryBox').innerHTML=`<ul class="summary-list">${studyContext.summary.map((p,i)=>`<li><span class="num">${i+1}</span><span style="font-size:12.5px">${escapeHtml(p)}</span></li>`).join('')}</ul>`;
+  }
+  const n = quiz.length;
+  addChatMsg('bot', explanation + `<div style="margin-top:14px;padding:12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px">
+    <div style="font-size:13px;font-weight:700">Vill du testa dig med ett mini-quiz om “${escapeHtml(topicNowLocal)}”?</div>
+    <div style="font-size:11px;color:var(--muted);margin:4px 0 10px">${n} frågor • anpassat till din nivå • du skriver själv</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="startPendingQuiz()">✅ Ja, kör quiz!</button>
+      <button class="btn btn-ghost btn-sm" onclick="botReply('ge fler exempel om ${topicNowLocal.replace(/'/g,"\'")}')">Fler exempel</button>
+      <button class="btn btn-ghost btn-sm" onclick="addChatMsg('bot','Lugnt! Fråga vidare när du vill — jag minns allt vi pratat om.')">Nej tack</button>
+    </div>
+  </div>`);
+  trackPresence('fick förklaring: '+topicNowLocal.slice(0,40));
+}
+chatSend.addEventListener('click',sendChat);chatInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});document.querySelectorAll('.quickQ').forEach(b=>b.addEventListener('click',()=>{chatInput.value=b.dataset.q;sendChat();}));
+async function sendChat(){const v=chatInput.value.trim();if(!v)return;addChatMsg('user',escapeHtml(v));chatInput.value='';setTimeout(async()=>{ try{ await botReply(v);}catch(e){ addChatMsg('bot',`⚠️ Fel: ${escapeHtml(e.message)}`);} },200);}
+
+// AUTH
+const ADMIN_CODE="developers123";
+const LS_USERS="examina_users_v5";
+const LS_LOG="examina_audit_v4";
+const LS_CONSENT="examina_consent_v4";
+const LS_CURRENT="examina_current_v4";
+const LS_NOTIF="examina_notif_v4";
+let filterMode='all',viewingUserId=null;
+function defaultUsers(){
+  return [
+    {id:'chef',name:'Chef',role:'Owner',pass:'Chef130901@',status:'offline',banned:false,activity:'Owner — systemägare',lastSeen:Date.now(),screenviewEnabled:true},
+  ];
+}
+function loadUsers(){try{const r=localStorage.getItem(LS_USERS);if(r) return JSON.parse(r);}catch{}const d=defaultUsers();localStorage.setItem(LS_USERS,JSON.stringify(d));return d;}
+function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u)); try{ pokeStorage(LS_USERS); }catch{} }
+function loadLog(){try{return JSON.parse(localStorage.getItem(LS_LOG)||'[]')}catch{return[]}}
+function saveLog(l){localStorage.setItem(LS_LOG,JSON.stringify(l)); try{ pokeStorage(LS_LOG); }catch{} }
+function logAudit(m){const l=loadLog();l.unshift({t:new Date().toLocaleString('sv-SE'),msg:m});localStorage.setItem(LS_LOG,JSON.stringify(l.slice(0,80)));renderAudit();}
+function loadConsent(){try{return JSON.parse(localStorage.getItem(LS_CONSENT)||'{}')}catch{return{}}}
+function saveConsent(m){localStorage.setItem(LS_CONSENT,JSON.stringify(m)); try{ pokeStorage(LS_CONSENT); }catch{} }
+function loadNotif(){try{return JSON.parse(localStorage.getItem(LS_NOTIF)||'{}')}catch{return{}}}
+function saveNotif(m){localStorage.setItem(LS_NOTIF,JSON.stringify(m)); try{ pokeStorage(LS_NOTIF); }catch{} }
+function getCurrent(){try{return JSON.parse(localStorage.getItem(LS_CURRENT)||'null')}catch{return null}}
+function setCurrent(u){if(u) localStorage.setItem(LS_CURRENT,JSON.stringify(u)); else localStorage.removeItem(LS_CURRENT); updateCurrentLabel(); checkToast();}
+function updateCurrentLabel(){
+  const cur=getCurrent();
+  const el=document.getElementById('currentUserLabel');
+  const btn=document.getElementById('logoutBtn');
+  const hBtn=document.getElementById('headerLogoutBtn');
+  const box=document.getElementById('consentSettings');
+  if(!cur){el.textContent='— ingen —';btn.style.display='none'; if(hBtn) hBtn.style.display='none'; box.classList.add('hidden');return;}
+  const us=loadUsers();const full=us.find(x=>x.id===cur.id)||cur;
+  const cm=loadConsent();const has=cm[cur.id]===true;
+  el.innerHTML=`${escapeHtml(full.name)} <span style="color:var(--muted)">(${full.role})</span> ${has?'<span class="badge ok" style="font-size:9px">samtycke JA</span>':'<span class="badge" style="font-size:9px">samtycke NEJ</span>'} ${full.screenviewEnabled?'<span class="badge">handledning PÅ</span>':'<span class="badge">handledning AV</span>'}`;
+  btn.style.display='inline-flex'; if(hBtn) hBtn.style.display='inline-flex'; box.classList.remove('hidden');
+  const t=document.getElementById('consentToggle');t.checked=has;t.disabled=!full.screenviewEnabled;
+}
+function trackPresence(a){const cur=getCurrent();if(!cur) return;const us=loadUsers();const u=us.find(x=>x.id===cur.id);if(!u) return;u.status='online';u.lastSeen=Date.now();if(a) u.activity=a;saveUsers(us);}
+function renderAdmin(){
+  const us=loadUsers();const cm=loadConsent();
+  document.getElementById('statTotal').textContent=us.length;
+  document.getElementById('statOnline').textContent=us.filter(u=>u.status==='online').length;
+  document.getElementById('statConsent').textContent=us.filter(u=>u.screenviewEnabled && cm[u.id]===true).length;
+  let f=us.filter(u=>{
+    const q=document.getElementById('userSearch').value.toLowerCase().trim();
+    if(q && !u.name.toLowerCase().includes(q)) return false;
+    if(filterMode==='online' && u.status!=='online') return false;
+    if(filterMode==='consent' && !(u.screenviewEnabled && cm[u.id]===true)) return false;
+    return true;
+  });
+  document.getElementById('userCountBadge').textContent=`${f.length} visar`;
+  const tb=document.getElementById('userTableBody');
+  tb.innerHTML=f.map(u=>{
+    const has=cm[u.id]===true;const can=u.screenviewEnabled && has && !u.banned;
+    return `<tr style="${u.banned?'opacity:.6;background:rgba(239,68,68,.06)':''}">
+      <td><span class="dot ${u.banned?'banned':u.status==='online'?'online':'offline'}"></span> <span style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:${u.banned?'#f87171':u.status==='online'?'#10b981':'var(--muted)'}">${u.banned?'BANNAD':u.status}</span></td>
+      <td><div style="font-weight:650">${escapeHtml(u.name)}</div><div style="font-size:10px;color:var(--muted);font-family:'Fragment Mono',monospace">${u.role}</div></td>
+      <td><span class="badge">${u.role}</span></td>
+      <td>
+        <label style="display:flex;gap:6px;align-items:center;font-size:11px;cursor:pointer"><input type="checkbox" ${u.screenviewEnabled?'checked':''} onchange="toggleScreenview('${u.id}',this.checked)"> Tillåt handledning</label>
+        <div style="font-size:10px;font-family:'Fragment Mono',monospace;color:${has?'#6ee7b7':'var(--dim)'}">${u.screenviewEnabled?(has?'✓ Samtycke GIVET':'○ Väntar — förfrågan skickad'):'— AV'}</div>
+      </td>
+      <td><div class="admin-actions">
+        <button class="icon-btn" ${can?'':'disabled'} onclick="viewUser('${u.id}')">${can?'Visa':'Låst'}</button>
+        <button class="icon-btn" onclick="sendRequest('${u.id}')" title="Skicka förfrågan igen">↗ Förfrågan</button>
+        <button class="icon-btn" onclick="kickUser('${u.id}')">Kick</button>
+        <button class="icon-btn danger" onclick="banUser('${u.id}')">${u.banned?'Unban':'Ban'}</button>
+        <button class="icon-btn danger" onclick="deleteUser('${u.id}')">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px">Inga användare.</td></tr>`;
+  const live=document.getElementById('liveSessions');
+  const onlineWith=us.filter(u=>u.status==='online' && u.screenviewEnabled && cm[u.id]===true && !u.banned);
+  live.innerHTML=onlineWith.map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)"><div style="display:flex;gap:10px;align-items:center"><span class="dot online"></span><div><div style="font-weight:600;font-size:12.5px">${escapeHtml(u.name)}</div><div style="font-size:11px;color:var(--muted)">${escapeHtml(u.activity)}</div><div style="font-size:10px;color:#6ee7b7;font-family:'Fragment Mono',monospace">✓ Samtycke giltigt</div></div></div><button class="icon-btn" onclick="viewUser('${u.id}')">Visa →</button></div>`).join('')||`<div class="notice info">Inga live-sessioner med samtycke. Slå på “Tillåt handledning” → klicka “↗ Förfrågan” — eleven får en <strong>ärlig</strong> ruta och kan trycka Tillåt.</div>`;
+  renderAudit();
+}
+function renderAudit(){const l=loadLog();document.getElementById('auditLog').innerHTML=l.map(e=>`<div style="display:flex;gap:8px"><span style="color:var(--dim)">${escapeHtml(e.t)}</span><span>— ${escapeHtml(e.msg)}</span></div>`).join('')||`<div style="color:var(--dim)">Ingen logg.</div>`;}
+
+window.toggleScreenview=function(id,c){
+  const us=loadUsers();const u=us.find(x=>x.id===id);if(!u) return;
+  u.screenviewEnabled=c;saveUsers(us);
+  if(!c){const m=loadConsent();delete m[id];saveConsent(m);const n=loadNotif();delete n[id];saveNotif(n);logAudit(`Avaktiverade handledning för ${u.name}`);}
+  else {
+    logAudit(`Aktiverade handledning för ${u.name} — skickar ärlig förfrågan (inte cookie/verifiering)`);
+    sendRequest(id, true); // auto-send honest request
+  }
+  updateCurrentLabel();renderAdmin();checkToast();
+}
+window.sendRequest=function(id, silent){
+  const us=loadUsers();const u=us.find(x=>x.id===id);if(!u) return;
+  if(!u.screenviewEnabled){alert('Slå först på “Tillåt handledning” för kontot.');return;}
+  const n=loadNotif();n[id]={from:'Admin',at:Date.now(),msg: honestMessage(u.name)};saveNotif(n);
+  logAudit(`Skickade handlednings-förfrågan till ${u.name} — ärlig text (ej cookie, ej ägarbevis)`);
+  renderAdmin(); checkToast(); updateSiteGate();
+  // Instant delivery: if target is current user, show immediately
+  const cur=getCurrent();
+  if(cur && cur.id===id){
+    checkToast();
+    const toast=document.getElementById('userToast');
+    if(toast) toast.style.display='block';
+  }
+  // Force cross-tab instant via storage poke + broadcast
+  try{ pokeStorage(LS_NOTIF); }catch{}
+  try{ localStorage.setItem('_poke_'+Date.now(), String(Date.now())); localStorage.removeItem('_poke_'+Date.now()); }catch{}
+  if(!silent) {
+    const btnMsg = document.getElementById('createMsg');
+    // also show inline feedback in admin
+    if(btnMsg){ btnMsg.className='notice success'; btnMsg.textContent=`📨 Förfrågan skickad till "${u.name}" — eleven ser den direkt (toast + consent-ruta).`; btnMsg.classList.remove('hidden'); setTimeout(()=>btnMsg.classList.add('hidden'),3000); }
+    // alert only if not too spammy
+    // alert(`Förfrågan skickad till ${u.name}. Eleven ser nu en tydlig ruta med Tillåt/Neka.`);
+  }
+}
+function honestMessage(name){
+  return `Din admin/lärare ber om att få se din aktivitet i Examina`;
+}
+// Toast handling - honest notification (not disguised)
+function checkToast(){
+  const cur=getCurrent();const toast=document.getElementById('userToast');
+  if(!cur){toast.style.display='none';return;}
+  const n=loadNotif()[cur.id];
+  const cm=loadConsent()[cur.id];
+  const us=loadUsers();const u=us.find(x=>x.id===cur.id);
+  if(n && u && u.screenviewEnabled && cm!==true){
+    // Visa varje gång efter Neka — även om cm===false, skapa ny förfrågan
+    document.getElementById('toastBody').textContent=n.msg;
+    toast.style.display='block';
+  } else if(n && cm===true){
+    toast.style.display='none';
+  } else if(!n || cm===true){
+    toast.style.display='none';
+  } else {
+    toast.style.display='none';
+  }
+}
+document.getElementById('toastAccept').addEventListener('click',()=>{
+  const cur=getCurrent();if(!cur) return;
+  const m=loadConsent();m[cur.id]=true;saveConsent(m);
+  const n=loadNotif();delete n[cur.id];saveNotif(n);
+  logAudit(`Samtycke GIVET via toast: ${cur.name} tillät handlednings-vy (ärlig förfrågan)`);
+  checkToast();updateCurrentLabel();renderAdmin();
+  // also update user activity
+  const us=loadUsers();const u=us.find(x=>x.id===cur.id);if(u){u.activity='Samtycke givet — handledning tillåten';saveUsers(us);}
+});
+document.getElementById('toastDeny').addEventListener('click',()=>{
+  const cur=getCurrent();if(!cur) return;
+  const m=loadConsent();m[cur.id]=false;saveConsent(m);
+  const n=loadNotif();delete n[cur.id];saveNotif(n);
+  logAudit(`Samtycke NEKAT via toast: ${cur.name} — loggar ut`);
+  checkToast();updateCurrentLabel();renderAdmin();
+  // Neka = loggas ut direkt (enligt önskemål)
+  const us=loadUsers(); const u=us.find(x=>x.id===cur.id); if(u){ u.status='offline'; u.activity='Nekade handledning — utloggad'; saveUsers(us); }
+  setCurrent(null); updateSiteGate(); updateLoginSelect();
+  const toast=document.getElementById('userToast'); if(toast) toast.style.display='none';
+});
+window.viewUser=function(id){
+  const us=loadUsers();const u=us.find(x=>x.id===id);if(!u) return;
+  const cm=loadConsent();const has=cm[id]===true;viewingUserId=id;
+  document.getElementById('screenUserName').textContent=u.name;
+  const can=u.screenviewEnabled && has && !u.banned;
+  const mo=document.getElementById('screenModal');mo.classList.add('open');mo.style.display='flex';
+  const den=document.getElementById('screenDenied');
+  const live=document.getElementById('screenLiveView');
+  if(can){
+    den.classList.add('hidden');
+    live.innerHTML=`<div style="width:100%;max-width:560px;text-align:left">
+      <div style="font-family:'Fragment Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live — ${escapeHtml(u.activity)}</div>
+      <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px">
+        <div style="font-weight:600;font-size:13px">${escapeHtml(u.activity)}</div>
+        <div style="margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg2);min-height:60px"><div style="font-size:11px;color:var(--muted);font-family:'Fragment Mono',monospace;margin-bottom:6px">Senast sedd: ${new Date(u.lastSeen).toLocaleTimeString('sv-SE')} • Status: ${u.status}</div><div style="font-size:13px;color:var(--ink)">Eleven har gett <strong>tydligt, informerat samtycke</strong> till handlednings-vy. Du ser endast innehållet i denna webbapp — ingen OS-skärm.</div></div>
+        <div style="margin-top:10px;height:6px;background:var(--line);border-radius:999px;overflow:hidden"><div style="height:100%;width:66%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:6px"><span class="badge ok">Samtycke: JA</span><span class="badge">${escapeHtml(u.role)}</span></div>
+    </div>`;
+    logAudit(`Visade handlednings-vy för ${u.name} — samtycke verifierat`);
+  } else {
+    den.classList.remove('hidden');
+    live.innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:16px;font-weight:700">${u.banned?'Konto bannat':!u.screenviewEnabled?'Handledning AV':'Väntar på elevens samtycke'}</div><div style="font-size:12px;color:var(--muted);margin-top:6px;max-width:420px">${u.banned?'Ingen visning.':!u.screenviewEnabled?'Slå på “Tillåt handledning” och klicka “↗ Förfrågan”.':'Eleven har fått en ärlig förfrågan och måste trycka Tillåt. Skicka “↗ Förfrågan” igen om rutan försvann.'}</div></div>`;
+    logAudit(`Nekad visning för ${u.name}`);
+  }
+}
+window.kickUser=function(id){const us=loadUsers();const u=us.find(x=>x.id===id);if(!u)return;const r=prompt('Orsak för kick:','Störande');if(r===null)return;u.status='offline';u.activity=`Kickad — ${r}`;saveUsers(us);logAudit(`KICK ${u.name}: ${r}`);renderAdmin(); updateLoginSelect(); updateSiteGate(); checkToast();
+  const cur=getCurrent(); if(cur && cur.id===id){ setCurrent(null); alert(`Du har blivit kickad: ${r}`); updateSiteGate(); }
+}
+window.banUser=function(id){const us=loadUsers();const u=us.find(x=>x.id===id);if(!u)return;if(u.banned){u.banned=false;u.activity='Avbannad';logAudit(`UNBAN ${u.name}`); saveUsers(us); renderAdmin(); updateLoginSelect(); updateSiteGate(); checkToast();}
+  else{const r=prompt('Orsak för ban:','Regelbrott');if(r===null)return;u.banned=true;u.status='offline';u.activity=`Bannad — ${r}`;logAudit(`BAN ${u.name}: ${r}`); saveUsers(us); renderAdmin(); updateLoginSelect(); updateSiteGate(); checkToast();
+  const cur=getCurrent(); if(cur && cur.id===id){ setCurrent(null); alert(`Du har blivit bannad: ${r}`); updateSiteGate(); }
+  }}
+window.deleteUser=function(id){if(!confirm('Radera konto?'))return;let us=loadUsers();const victim=us.find(x=>x.id===id);us=us.filter(u=>u.id!==id);saveUsers(us);const m=loadConsent();delete m[id];saveConsent(m);const n=loadNotif();delete n[id];saveNotif(n);logAudit(`Raderade konto ${id} (${victim? victim.name : ''})`);renderAdmin();updateLoginSelect();updateCurrentLabel();updateSiteGate();checkToast();
+  const cur=getCurrent(); if(cur && cur.id===id){ setCurrent(null); alert('Ditt konto har raderats av admin.'); updateSiteGate(); }
+}
+
+// create account WITHOUT email
+document.getElementById('createAccountBtn').addEventListener('click',()=>{
+  const nameEl=document.getElementById('newName'), roleEl=document.getElementById('newRole'), passEl=document.getElementById('newPass'), svEl=document.getElementById('newScreenview');
+  const name=nameEl.value.trim(),role=roleEl.value,pass=passEl.value.trim(),sv=svEl.checked;
+  const msg=document.getElementById('createMsg');
+  if(!name){msg.className='notice warn';msg.textContent='Fyll i namn / användarnamn.';msg.classList.remove('hidden');nameEl.focus();return;}
+  if(name.length<2){msg.className='notice warn';msg.textContent='Namnet måste vara minst 2 tecken.';msg.classList.remove('hidden');return;}
+  const us=loadUsers();
+  if(us.find(u=>u.name.toLowerCase()===name.toLowerCase())){msg.className='notice warn';msg.textContent='Namnet finns redan — välj annat.';msg.classList.remove('hidden');return;}
+  const nu={id:'u'+Date.now()+Math.floor(Math.random()*1000),name,role,pass,passLen:pass.length,status:'offline',banned:false,activity:'Nytt konto — ej inloggad',lastSeen:Date.now(),screenviewEnabled:sv};
+  us.push(nu);
+  saveUsers(us);
+  logAudit(`Skapade konto: ${name} som ${role} — handledning ${sv?'PÅ':'AV'}`);
+  // Instant UI updates for admin panel + site gate
+  renderAdmin(); updateLoginSelect(); updateCurrentLabel(); updateSiteGate(); checkToast();
+  msg.className='notice success';msg.textContent=`✅ Konto "${name}" (${role}) skapat direkt — kan logga in omedelbart! ${sv && role==='elev'?'Förfrågan skickas vid första login.':''}`;msg.classList.remove('hidden');
+  nameEl.value='';passEl.value=''; // keep role as is
+  // Instant feedback: highlight new row briefly
+  setTimeout(()=>renderAdmin(),50);
+  if(sv && role==='elev'){
+    // Förbered notif direkt så eleven ser den direkt vid login (instant)
+    const n=loadNotif();n[nu.id]={from:'Admin',at:Date.now(),msg:honestMessage(nu.name)};saveNotif(n); try{ pokeStorage(LS_NOTIF); }catch{}
+  }
+  // Auto-clear success after 4s
+  setTimeout(()=>msg.classList.add('hidden'),4000);
+});
+document.getElementById('userSearch').addEventListener('input',renderAdmin);
+document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filterMode=b.dataset.filter;renderAdmin();}));
+document.getElementById('exportBtn').addEventListener('click',()=>{const d=JSON.stringify(loadUsers(),null,2);const blob=new Blob([d],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='examina-users.json';a.click();});
+document.getElementById('clearLogBtn').addEventListener('click',()=>{if(!confirm('Rensa logg?'))return;saveLog([]);renderAudit();});
+function openAdmin(){
+  const cur=getCurrent();
+  const us=loadUsers();
+  const full=cur?us.find(x=>x.id===cur.id):null;
+  const isAdmin=full && (full.role==='admin' || full.role==='Owner' || full.role==='owner');
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('adminOverlay').style.display='flex';
+  if(!isAdmin){
+    document.getElementById('adminGate').classList.remove('hidden');
+    document.getElementById('adminApp').classList.add('hidden');
+    const m=document.getElementById('adminGateMsg');
+    m.innerHTML='⛔ <strong>Endast för admins.</strong> Du är inloggad som <em>'+(full?escapeHtml(full.name)+' ('+escapeHtml(full.role)+')':'ingen — ej inloggad')+'</em>.<br>Logga in som <strong>Chef</strong> (Owner) eller annan admin först.<br><button onclick="closeAdmin();openUserLogin()" class="btn btn-primary" style="margin-top:8px;width:auto;padding:7px 12px">Gå till login</button>';
+    m.className='notice warn';
+    m.classList.remove('hidden');
+    // keep gate visible for code entry as fallback for admins who know code but not logged in? still require role, so hide input
+    document.getElementById('adminCodeInput').style.display='none';
+    document.getElementById('adminLoginBtn').style.display='none';
+    renderAdmin();
+    return;
+  }
+  // Admin/Owner — direkt in, ingen kod behöver visas
+  document.getElementById('adminGate').classList.add('hidden');
+  document.getElementById('adminApp').classList.remove('hidden');
+  document.getElementById('adminCodeInput').style.display='';
+  document.getElementById('adminLoginBtn').style.display='';
+  logAudit('Admin-panel öppnad av '+full.name+' ('+full.role+')');
+  renderAdmin();
+}
+function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminOverlay').style.display='none';}
+document.getElementById('adminClose').addEventListener('click',closeAdmin);
+document.getElementById('adminOverlay').addEventListener('click',e=>{if(e.target.id==='adminOverlay')closeAdmin();});
+document.getElementById('adminLoginBtn').addEventListener('click',tryLogin);
+document.getElementById('adminCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+function tryLogin(){
+  const v=document.getElementById('adminCodeInput').value;
+  const m=document.getElementById('adminGateMsg');
+  const cur=getCurrent();
+  const us=loadUsers();
+  const full=cur?us.find(x=>x.id===cur.id):null;
+  const isAdmin=full && (full.role==='admin' || full.role==='Owner' || full.role==='owner');
+  if(!isAdmin){
+    m.innerHTML='⛔ Endast admins kan använda kod-inlogg. Logga in som admin/Owner först.';
+    m.className='notice warn';m.classList.remove('hidden');logAudit('Nekad kod-inlogg — ej admin');
+    return;
+  }
+  if(v===ADMIN_CODE){
+    document.getElementById('adminGate').classList.add('hidden');
+    document.getElementById('adminApp').classList.remove('hidden');
+    logAudit('Admin inloggad via kod: '+full.name);
+    renderAdmin();
+  } else {
+    m.textContent='❌ Fel kod.';
+    m.className='notice warn';m.classList.remove('hidden');
+    logAudit('Misslyckat admin-försök (fel kod) av '+full.name);
+  }
+}
+function openUserLogin(){document.getElementById('userLoginOverlay').classList.add('open');document.getElementById('userLoginOverlay').style.display='flex';updateLoginSelect();updateCurrentLabel();checkToast();}
+function closeUserLogin(){document.getElementById('userLoginOverlay').classList.remove('open');document.getElementById('userLoginOverlay').style.display='none';}
+document.getElementById('userLoginClose').addEventListener('click',closeUserLogin);
+document.getElementById('userLoginOverlay').addEventListener('click',e=>{if(e.target.id==='userLoginOverlay')closeUserLogin();});
+function updateLoginSelect(){
+  // legacy name kept — uppdaterar bara label/räknare, ingen <select> längre
+  updateCurrentLabel();
+  const us=loadUsers();
+  const el=document.getElementById('siteGateStatus');
+  if(el) el.textContent=us.length+' konton • '+us.filter(u=>u.status==='online').length+' online';
+}
+document.getElementById('doLoginBtn').addEventListener('click',()=>{
+  const username=document.getElementById('loginUsername').value.trim();
+  const enteredPass=document.getElementById('loginPass').value;
+  const us=loadUsers();const u=us.find(x=>x.name.toLowerCase()===username.toLowerCase());
+  const msg=document.getElementById('loginMsg');
+  if(!username){msg.className='notice warn';msg.textContent='Skriv användarnamn.';msg.classList.remove('hidden');return;}
+  if(!u){msg.className='notice warn';msg.textContent='❌ Kontot "'+username+'" finns inte. Be en admin skapa det.';msg.classList.remove('hidden');return;}
+  if(u.banned){msg.className='notice warn';msg.textContent='⛔ Kontot är bannat.';msg.classList.remove('hidden');return;}
+  if(u.pass && u.pass!==enteredPass){
+    msg.className='notice warn';msg.textContent='❌ Fel lösenord för '+u.name+'.';msg.classList.remove('hidden');logAudit('Misslyckad login '+u.name+' — fel lösenord');return;
+  }
+  setCurrent(u);u.status='online';u.lastSeen=Date.now();u.activity='Inloggad — i studierum';saveUsers(us);
+  logAudit(`Elev-login: ${u.name}`);document.getElementById('loginMsg').className='notice success';document.getElementById('loginMsg').textContent=`✅ Inloggad som ${u.name}`;document.getElementById('loginMsg').classList.remove('hidden');
+  updateCurrentLabel();renderAdmin();updateSiteGate();
+  const cm=loadConsent();
+  // endast elever får screenview-förfrågan — inte admins/lärare
+  if(u.role==='elev' && u.screenviewEnabled && cm[u.id]!==true){ // visa varje gång efter Neka (inte bara första gången)
+    const n=loadNotif(); if(!n[u.id]){ n[u.id]={from:'Admin',at:Date.now(),msg:honestMessage(u.name)}; saveNotif(n); }
+    showConsent(u);
+    checkToast();
+  } else {
+    setTimeout(closeUserLogin,800);
+    checkToast();
+  }
+});
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  const cur=getCurrent();if(cur){const us=loadUsers();const u=us.find(x=>x.id===cur.id);if(u){u.status='offline';saveUsers(us);}logAudit(`Utloggad: ${cur.name}`);}
+  setCurrent(null);updateLoginSelect();renderAdmin();
+  const m=document.getElementById('loginMsg');m.className='notice info';m.textContent='Utloggad.';m.classList.remove('hidden');
+  document.getElementById('userToast').style.display='none';
+});
+document.getElementById('headerLogoutBtn').addEventListener('click',()=>{
+  const cur=getCurrent();if(cur){const us=loadUsers();const u=us.find(x=>x.id===cur.id);if(u){u.status='offline';saveUsers(us);}logAudit(`Utloggad (header): ${cur.name}`);}
+  setCurrent(null);updateLoginSelect();renderAdmin();
+  const m=document.getElementById('loginMsg'); if(m){m.className='notice info';m.textContent='Utloggad.';m.classList.remove('hidden');}
+  const sm=document.getElementById('siteGateMsg'); if(sm){sm.className='notice info';sm.textContent='Utloggad.';sm.classList.remove('hidden');}
+  const toast=document.getElementById('userToast'); if(toast) toast.style.display='none';
+});
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('doLoginBtn').click();});
+document.getElementById('loginUsername').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('doLoginBtn').click();});
+document.getElementById('loginUsername').addEventListener('input',()=>document.getElementById('loginMsg').classList.add('hidden'));
+document.getElementById('loginPass').addEventListener('input',()=>document.getElementById('loginMsg').classList.add('hidden'));
+document.getElementById('consentToggle').addEventListener('change',e=>{
+  const cur=getCurrent();if(!cur) return;
+  const m=loadConsent();m[cur.id]=e.target.checked;saveConsent(m);
+  const n=loadNotif();delete n[cur.id];saveNotif(n);
+  logAudit(`${e.target.checked?'GAV':'ÅTERKALLADE'} samtycke: ${cur.name}`);
+  updateCurrentLabel();renderAdmin();checkToast();
+});
+let pendingConsentUser=null;
+function showConsent(u){pendingConsentUser=u;document.getElementById('consentName').textContent=u.name;document.getElementById('consentOverlay').classList.add('open');document.getElementById('consentOverlay').style.display='flex';}
+function hideConsent(){document.getElementById('consentOverlay').classList.remove('open');document.getElementById('consentOverlay').style.display='none';pendingConsentUser=null;}
+document.getElementById('consentAllow').addEventListener('click',()=>{
+  if(!pendingConsentUser) return;const m=loadConsent();m[pendingConsentUser.id]=true;saveConsent(m);const n=loadNotif();delete n[pendingConsentUser.id];saveNotif(n);logAudit(`Samtycke GIVET: ${pendingConsentUser.name} (ärlig förfrågan)`);hideConsent();updateCurrentLabel();renderAdmin();closeUserLogin();checkToast();
+  const us=loadUsers();const u=us.find(x=>x.id===pendingConsentUser.id);if(u){u.activity='Samtycke givet — handledning tillåten';saveUsers(us);}
+});
+document.getElementById('consentDeny').addEventListener('click',()=>{
+  if(!pendingConsentUser) return;
+  const deniedId = pendingConsentUser.id;
+  const deniedName = pendingConsentUser.name;
+  const m=loadConsent();m[deniedId]=false;saveConsent(m);
+  const n=loadNotif();delete n[deniedId];saveNotif(n);
+  logAudit(`Samtycke NEKAT: ${deniedName} — loggar ut`);
+  hideConsent();updateCurrentLabel();renderAdmin();closeUserLogin();checkToast();
+  // Neka = loggas ut direkt
+  const us=loadUsers(); const u=us.find(x=>x.id===deniedId); if(u){ u.status='offline'; u.activity='Nekade handledning — utloggad'; saveUsers(us); }
+  const cur=getCurrent(); if(cur && cur.id===deniedId){ setCurrent(null); updateSiteGate(); updateLoginSelect(); }
+  // Även om annan är inloggad, säkerställ gate om ingen är inloggad
+  if(!getCurrent()){ updateSiteGate(); }
+  const toast=document.getElementById('userToast'); if(toast) toast.style.display='none';
+});
+document.getElementById('screenClose').addEventListener('click',()=>{document.getElementById('screenModal').classList.remove('open');document.getElementById('screenModal').style.display='none';});
+document.getElementById('screenModal').addEventListener('click',e=>{if(e.target.id==='screenModal'){document.getElementById('screenModal').classList.remove('open');document.getElementById('screenModal').style.display='none';}});
+document.getElementById('kickFromView').addEventListener('click',()=>{if(viewingUserId) kickUser(viewingUserId);});
+document.getElementById('banFromView').addEventListener('click',()=>{if(viewingUserId) banUser(viewingUserId);});
+document.getElementById('msgUserBtn').addEventListener('click',()=>{const m=prompt('Meddelande:','Hej, behöver du hjälp?');if(m) logAudit(`Meddelande till ${viewingUserId}: "${m}"`);});
+document.addEventListener('keydown',e=>{
+  const isOE=e.key.toLowerCase()==='ö'||e.key==='Ö';
+  if(e.ctrlKey&&e.shiftKey&&isOE){e.preventDefault();openAdmin();}
+  if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='q'){e.preventDefault();openAdmin();}
+});
+// — SITE GATE: måste ha konto skapat av admin —
+function updateSiteGate(){
+  const cur=getCurrent();
+  const gate=document.getElementById('siteGate');
+  if(cur){
+    gate.classList.remove('open');
+    gate.style.display='none';
+    // visa vem som är inloggad i headern
+    const hdr=document.querySelector('.brand p');
+    if(hdr) hdr.textContent='Inloggad: '+cur.name+' ('+cur.role+') — Västerås';
+  } else {
+    gate.classList.add('open');
+    gate.style.display='flex';
+    populateSiteGate();
+  }
+}
+function populateSiteGate(){
+  const us=loadUsers();
+  const el=document.getElementById('siteGateStatus');
+  if(el) el.textContent=us.length+' konton • '+us.filter(u=>u.status==='online').length+' online';
+}
+document.getElementById('siteGateLoginBtn').addEventListener('click',()=>{
+  const username=document.getElementById('siteLoginUsername').value.trim();
+  const pass=document.getElementById('siteLoginPass').value;
+  const us=loadUsers();const u=us.find(x=>x.name.toLowerCase()===username.toLowerCase());
+  const msg=document.getElementById('siteGateMsg');
+  if(!username){msg.className='notice warn';msg.textContent='Skriv användarnamn.';msg.classList.remove('hidden');return;}
+  if(!u){msg.className='notice warn';msg.textContent='❌ Kontot "'+username+'" finns inte. Be en admin skapa det.';msg.classList.remove('hidden');return;}
+  if(u.banned){msg.className='notice warn';msg.textContent='⛔ Kontot är bannat.';msg.classList.remove('hidden');return;}
+  if(u.pass && u.pass!==pass){msg.className='notice warn';msg.textContent='❌ Fel lösenord för '+u.name;msg.classList.remove('hidden');return;}
+  if(!u.pass && pass){ /* allow empty pass accounts with any pass? keep strict: if no pass, ignore entered */ }
+  setCurrent(u);u.status='online';u.lastSeen=Date.now();u.activity='Inloggad — via site gate';saveUsers(us);
+  logAudit('Site-gate login: '+u.name+' ('+u.role+')');
+  msg.className='notice success';msg.textContent='✅ Inloggad som '+u.name;msg.classList.remove('hidden');
+  updateCurrentLabel();renderAdmin();updateSiteGate();checkToast();
+  // endast elever får consent-rutan
+  const cm=loadConsent();
+  if(u.role==='elev' && u.screenviewEnabled && cm[u.id]!==true){ // visa varje gång efter Neka (inte bara första gången)
+    const n=loadNotif(); if(!n[u.id]){ n[u.id]={from:'Admin',at:Date.now(),msg:honestMessage(u.name)}; saveNotif(n); }
+    setTimeout(()=>showConsent(u),400);
+  }
+  setTimeout(()=>{msg.classList.add('hidden');},1200);
+});
+// även Enter i site gate
+document.getElementById('siteLoginPass').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('siteGateLoginBtn').click();});
+document.getElementById('siteLoginUsername').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('siteGateLoginBtn').click();});
+document.getElementById('siteLoginUsername').addEventListener('input',()=>{document.getElementById('siteGateMsg').classList.add('hidden');});
+document.getElementById('siteLoginPass').addEventListener('input',()=>{document.getElementById('siteGateMsg').classList.add('hidden');});
+
+// förläng logout så den visar gaten igen
+const origSetCurrent = setCurrent;
+setCurrent = function(u){
+  if(u) localStorage.setItem(LS_CURRENT,JSON.stringify(u)); else localStorage.removeItem(LS_CURRENT);
+  updateCurrentLabel(); checkToast(); updateSiteGate();
+};
+
+if(loadLog().length===0) logAudit('System start — demo-data laddad');
+updateLoginSelect();updateCurrentLabel();renderAdmin();checkToast();updateSiteGate();
+setInterval(checkToast,800);
+setInterval(updateSiteGate,1000);
+// Instant cross-tab sync — lyssna på localStorage-ändringar
+window.addEventListener('storage', (e)=>{
+  if(!e.key) return;
+  if([LS_USERS, LS_CONSENT, LS_NOTIF, LS_LOG, LS_CURRENT].includes(e.key)){
+    renderAdmin(); updateLoginSelect(); updateCurrentLabel(); checkToast(); updateSiteGate();
+  }
+});
+// Helper to force storage event in same-tab via dispatch
+function pokeStorage(key){
+  try{ window.dispatchEvent(new StorageEvent('storage', {key, newValue: localStorage.getItem(key)})); }catch{}
+}
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a429094a0bfcb79a',t:'MTc5MDY2NDQ0NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
